@@ -23,7 +23,7 @@
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:minWidth="320dp"
+        android:minWidth="@dimen/min_dialog_width"
         android:orientation="vertical">
 
         <TextView

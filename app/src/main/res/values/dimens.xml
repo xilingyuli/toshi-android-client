@@ -93,6 +93,8 @@
 
     <dimen name="hitbox_padding">5dp</dimen>
 
+    <dimen name="min_dialog_width">320dp</dimen>
+
     <dimen name="qr_code_size">170dp</dimen>
     <dimen name="qr_code_size_large">220dp</dimen>
 
