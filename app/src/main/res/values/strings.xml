@@ -384,4 +384,6 @@
     <string name="popular_bots">Popular Bots</string>
     <string name="popular_groups">Popular Groups</string>
     <string name="popular_users">Popular Users</string>
+    <string name="fingerprint_description">Confirm fingerprint to continue</string>
+    <string name="fingerprint_hint">Touch sensor</string>
 </resources>

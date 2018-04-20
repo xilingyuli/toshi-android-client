@@ -20,6 +20,8 @@ package com.toshi.presenter;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import com.toshi.util.logging.LogUtil;
 import com.toshi.util.sharedPrefs.AppPrefs;
@@ -28,7 +30,9 @@ import com.toshi.view.activity.LandingActivity;
 import com.toshi.view.activity.MainActivity;
 import com.toshi.view.activity.QrCodeHandlerActivity;
 import com.toshi.view.activity.SplashActivity;
+import com.toshi.view.fragment.DialogFragment.FingerPrintDialogFragment;
 
+import kotlin.Unit;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -58,15 +62,37 @@ public class SplashPresenter implements Presenter<SplashActivity> {
 
     private void redirect() {
         final boolean hasSignedOut = AppPrefs.INSTANCE.hasSignedOut();
-
-        if (hasSignedOut) {
-            goToLandingActivity();
-        } else {
-            initManagersAndGoToAnotherActivity();
-        }
+        if (hasSignedOut) goToLandingActivity();
+        else authenticateUser();
     }
 
-    private void initManagersAndGoToAnotherActivity() {
+    private void authenticateUser() {
+        if (Build.VERSION.SDK_INT >= 23) showFingerprintDialog();
+        else initManagersAndGoToAnotherActivity();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void showFingerprintDialog() {
+        final FingerPrintDialogFragment existingFingerprintDialog = (FingerPrintDialogFragment)
+                this.activity.getSupportFragmentManager().findFragmentByTag(FingerPrintDialogFragment.TAG);
+
+        final FingerPrintDialogFragment fingerprintDialog;
+        if (existingFingerprintDialog != null) {
+            fingerprintDialog = existingFingerprintDialog;
+        } else {
+            fingerprintDialog = new FingerPrintDialogFragment();
+            fingerprintDialog.show(this.activity.getSupportFragmentManager(), FingerPrintDialogFragment.TAG);
+        }
+        addDialogListeners(fingerprintDialog);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void addDialogListeners(final FingerPrintDialogFragment dialog) {
+        dialog.setOnSuccessListener(this::initManagersAndGoToAnotherActivity);
+        dialog.setOnCancelListener(this::finishAcitvity);
+    }
+
+    private Unit initManagersAndGoToAnotherActivity() {
         final Subscription sub =
                 BaseApplication
                 .get()
@@ -80,6 +106,13 @@ public class SplashPresenter implements Presenter<SplashActivity> {
                 );
 
         this.subscriptions.add(sub);
+        return null;
+    }
+
+    private Unit finishAcitvity() {
+        if (this.activity == null) return null;
+        this.activity.finish();
+        return null;
     }
 
     private void goToAnotherActivity() {
