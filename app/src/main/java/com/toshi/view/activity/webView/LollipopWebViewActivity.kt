@@ -87,7 +87,6 @@ class LollipopWebViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
         initWebClient()
-        load()
         initSearchAdapter()
     }
 
