@@ -1,7 +1,7 @@
 /*
  * 	Copyright (c) 2017. Toshi Inc
  *
- * 	This program is free software: you can redistribute it and/or modify
+ *  This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
@@ -14,59 +14,41 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.toshi.crypto.keyStore;
+package com.toshi.crypto.keyStore.WalletKeystore;
 
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.support.annotation.NonNull;
-import android.util.Base64;
 
+import com.toshi.crypto.keyStore.Decryptor;
+import com.toshi.crypto.keyStore.Encryptor;
+import com.toshi.crypto.keyStore.KeyGenerator;
+import com.toshi.crypto.keyStore.KeystoreSecretKey;
 import com.toshi.exception.KeyStoreException;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.UnrecoverableEntryException;
 
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.GCMParameterSpec;
 
 @TargetApi(23)
-public class KeystoreHandler23 extends KeyStoreBase {
+public class WalletKeystoreHandler23 extends KeyStoreBase {
 
-    private static final String TRANSFORMATION = "AES/GCM/NoPadding";
-    private String encryptionIv = "fixed_enc_iv";
-
-    /*package */ KeystoreHandler23(final Context context, final String alias) throws KeyStoreException {
-        super(context, alias);
+    /*package */ WalletKeystoreHandler23(final String alias) throws KeyStoreException {
+        super(alias);
     }
 
     @Override
     protected void createNewKeysIfNeeded() throws KeyStoreException {
         try {
             if (this.keyStore.containsAlias(this.alias)) return;
-
-            final KeyGenerator keyGenerator = KeyGenerator
-                    .getInstance(KeyProperties.KEY_ALGORITHM_AES, KeyStoreBase.ANDROID_KEY_STORE);
-
-            keyGenerator.init(new KeyGenParameterSpec.Builder(this.alias,
-                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setRandomizedEncryptionRequired(false)
-                    .build());
-
-            keyGenerator.generateKey();
+            new KeyGenerator(this.alias).generateKey();
         } catch (NoSuchAlgorithmException | NoSuchProviderException
                 | InvalidAlgorithmParameterException | java.security.KeyStoreException e) {
             throw new KeyStoreException(new Throwable(e.getMessage()));
@@ -76,11 +58,7 @@ public class KeystoreHandler23 extends KeyStoreBase {
     @Override
     public String encrypt(final String textToEncrypt) throws KeyStoreException {
         try {
-            final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-            final GCMParameterSpec spec = new GCMParameterSpec(128, encryptionIv.getBytes());
-            cipher.init(Cipher.ENCRYPT_MODE, getSecretKey(), spec);
-            final byte[] encryptedData = cipher.doFinal(textToEncrypt.getBytes(UTF_8));
-            return Base64.encodeToString(encryptedData, Base64.DEFAULT);
+            return new Encryptor().encrypt(getSecretKey(), textToEncrypt);
         } catch (NoSuchAlgorithmException | BadPaddingException | InvalidKeyException
                 | NoSuchPaddingException | IllegalBlockSizeException | UnsupportedEncodingException
                 | InvalidAlgorithmParameterException | java.security.KeyStoreException
@@ -112,15 +90,9 @@ public class KeystoreHandler23 extends KeyStoreBase {
     }
 
     @NonNull
-    private String decryptCurrentKeystoreVersion(String encryptedData) throws KeyStoreException {
+    private String decryptCurrentKeystoreVersion(final String encryptedData) throws KeyStoreException {
         try {
-            final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-            final GCMParameterSpec spec = new GCMParameterSpec(128, encryptionIv.getBytes());
-            cipher.init(Cipher.DECRYPT_MODE, getSecretKey(), spec);
-
-            final byte[] encryptedBytes = Base64.decode(encryptedData, Base64.DEFAULT);
-            final byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
-            return new String(decryptedBytes, UTF_8);
+            return new Decryptor().decrypt(getSecretKey(), encryptedData);
         } catch (UnrecoverableEntryException | UnsupportedEncodingException
                 | IllegalBlockSizeException | NoSuchPaddingException
                 | InvalidAlgorithmParameterException | InvalidKeyException | java.security.KeyStoreException
@@ -130,6 +102,6 @@ public class KeystoreHandler23 extends KeyStoreBase {
     }
 
     private SecretKey getSecretKey() throws UnrecoverableEntryException, NoSuchAlgorithmException, java.security.KeyStoreException {
-        return ((KeyStore.SecretKeyEntry) this.keyStore.getEntry(this.alias, null)).getSecretKey();
+        return new KeystoreSecretKey(this.keyStore, this.alias).get();
     }
 }

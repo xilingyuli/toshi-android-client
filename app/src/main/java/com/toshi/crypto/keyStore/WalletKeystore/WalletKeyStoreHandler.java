@@ -1,7 +1,7 @@
 /*
  * 	Copyright (c) 2017. Toshi Inc
  *
- * 	This program is free software: you can redistribute it and/or modify
+ *  This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
@@ -14,20 +14,19 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.toshi.crypto.keyStore;
+package com.toshi.crypto.keyStore.WalletKeystore;
 
-import android.content.Context;
 import android.os.Build;
 
 import com.toshi.exception.KeyStoreException;
 
-public class KeyStoreHandler {
+public class WalletKeyStoreHandler {
 
     private KeyStoreBase secretHandler;
 
-    public KeyStoreHandler(final Context context, final String alias) throws KeyStoreException {
+    public WalletKeyStoreHandler(final String alias) throws KeyStoreException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            this.secretHandler = new KeystoreHandler23(context, alias);
+            this.secretHandler = new WalletKeystoreHandler23(alias);
         } else {
             this.secretHandler = new KeyStoreHandler16();
         }

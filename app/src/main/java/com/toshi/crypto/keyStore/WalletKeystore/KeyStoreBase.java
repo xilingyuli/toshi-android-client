@@ -1,7 +1,7 @@
 /*
  * 	Copyright (c) 2017. Toshi Inc
  *
- * 	This program is free software: you can redistribute it and/or modify
+ *  This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
@@ -14,9 +14,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.toshi.crypto.keyStore;
-
-import android.content.Context;
+package com.toshi.crypto.keyStore.WalletKeystore;
 
 import com.toshi.exception.KeyStoreException;
 
@@ -32,21 +30,18 @@ public abstract class KeyStoreBase {
         void onUpdate(final String encryptedData);
     }
 
-    /*package */ static final String ANDROID_KEY_STORE = "AndroidKeyStore";
-    /*package */ static final String UTF_8 = "UTF-8";
+    public static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     /*package */ String alias;
     /*package */ KeyStore keyStore;
-    /*package */ Context context;
 
     /*package */ KeyStoreBase() {}
 
-    /*package */ KeyStoreBase(final Context context, final String alias) throws KeyStoreException {
+    /*package */ KeyStoreBase(final String alias) throws KeyStoreException {
         this.alias = alias;
-        initKeyStore(context);
+        initKeyStore();
     }
 
-    private void initKeyStore(final Context context) throws KeyStoreException {
-        this.context = context;
+    private void initKeyStore() throws KeyStoreException {
         try {
             this.keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
             this.keyStore.load(null);

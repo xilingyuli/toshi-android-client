@@ -22,7 +22,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
 import com.toshi.crypto.hdshim.EthereumKeyChainGroup;
-import com.toshi.crypto.keyStore.KeyStoreHandler;
+import com.toshi.crypto.keyStore.WalletKeystore.WalletKeyStoreHandler;
 import com.toshi.crypto.util.TypeConverter;
 import com.toshi.exception.InvalidMasterSeedException;
 import com.toshi.exception.KeyStoreException;
@@ -256,8 +256,8 @@ public class HDWallet {
 
     private void saveMasterSeedToStorage(final String masterSeed) {
         try {
-            final KeyStoreHandler keyStoreHandler = new KeyStoreHandler(BaseApplication.get(), ALIAS);
-            final String encryptedMasterSeed = keyStoreHandler.encrypt(masterSeed);
+            final WalletKeyStoreHandler walletKeyStoreHandler = new WalletKeyStoreHandler(ALIAS);
+            final String encryptedMasterSeed = walletKeyStoreHandler.encrypt(masterSeed);
             saveMasterSeed(encryptedMasterSeed);
             this.masterSeed = masterSeed;
         } catch (KeyStoreException e) {
@@ -274,10 +274,10 @@ public class HDWallet {
 
     private String readMasterSeedFromStorage() {
         try {
-            final KeyStoreHandler keyStoreHandler = new KeyStoreHandler(BaseApplication.get(), ALIAS);
+            final WalletKeyStoreHandler walletKeyStoreHandler = new WalletKeyStoreHandler(ALIAS);
             final String encryptedMasterSeed = this.prefs.getString(MASTER_SEED, null);
             if (encryptedMasterSeed == null) return null;
-            return keyStoreHandler.decrypt(encryptedMasterSeed, this::saveMasterSeed);
+            return walletKeyStoreHandler.decrypt(encryptedMasterSeed, this::saveMasterSeed);
         } catch (KeyStoreException e) {
             LogUtil.exception("Error while reading master seed from storage", e);
             throw new IllegalStateException(e);
