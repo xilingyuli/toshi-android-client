@@ -59,7 +59,7 @@ public abstract class KeyStoreBase {
 
     public void deleteKey() throws KeyStoreException {
         try {
-            this.keyStore.deleteEntry(this.alias);
+            if (this.keyStore != null) this.keyStore.deleteEntry(this.alias);
         } catch (java.security.KeyStoreException e) {
             throw new KeyStoreException(new Throwable(e.getMessage()));
         }
