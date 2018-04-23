@@ -122,14 +122,13 @@ class GroupInfoActivity : AppCompatActivity() {
             if (it == true) returnToMainActivity()
         })
         viewModel.leaveGroupError.observe(this, Observer {
-            LogUtil.exception(it)
-            toast(R.string.error_leave_group, Toast.LENGTH_LONG)
+            if (it != null) toast(it, Toast.LENGTH_LONG)
         })
         viewModel.isMuted.observe(this, Observer {
             isMuted -> isMuted?.let { notificationSwitch.isChecked = !it }
         })
         viewModel.isMutedError.observe(this, Observer {
-            toast(R.string.notification_toggle_error)
+            if (it != null) toast(it)
         })
         viewModel.isUpdatingMuteState.observe(this, Observer {
             isUpdatingMuteState -> isUpdatingMuteState?.let { notificationsWrapper.isEnabled = !it }

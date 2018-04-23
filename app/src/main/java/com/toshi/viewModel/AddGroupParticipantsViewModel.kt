@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 
 class AddGroupParticipantsViewModel(val groupId: String) : ViewModel() {
 
-    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
+    private val chatManager by lazy { BaseApplication.get().chatManager }
     private val recipientManager by lazy { BaseApplication.get().recipientManager }
 
     private val subscriptions by lazy { CompositeSubscription() }
@@ -99,7 +99,7 @@ class AddGroupParticipantsViewModel(val groupId: String) : ViewModel() {
         val subscription =
                 Group.fromId(groupId)
                 .map { it.addMembers(selectedParticipants.value) }
-                .flatMapCompletable { sofaMessageManager.updateConversationFromGroup(it) }
+                .flatMapCompletable { chatManager.updateConversationFromGroup(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { isUpdatingGroup.value = true }
                 .doAfterTerminate { isUpdatingGroup.value = false }

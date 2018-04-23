@@ -46,7 +46,7 @@ class OutgoingTransactionManager(
 ) {
 
     private val userManager by lazy { BaseApplication.get().userManager }
-    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
+    private val chatManager by lazy { BaseApplication.get().chatManager }
     private val newOutgoingPaymentQueue by lazy { PublishSubject.create<PaymentTask>() }
     private val subscriptions by lazy { CompositeSubscription() }
     private var outgoingPaymentSub: Subscription? = null
@@ -118,7 +118,7 @@ class OutgoingTransactionManager(
         storedSofaMessage.payload = updatedMessage.payloadWithHeaders
         updateMessageState(receiver, storedSofaMessage, SendState.STATE_SENT)
         storeUnconfirmedTransaction(txHash, storedSofaMessage)
-        sofaMessageManager.sendMessage(Recipient(receiver), storedSofaMessage)
+        chatManager.sendMessage(Recipient(receiver), storedSofaMessage)
     }
 
     private fun handleOutgoingPaymentError(error: Throwable, receiver: User, storedSofaMessage: SofaMessage) {
@@ -128,7 +128,7 @@ class OutgoingTransactionManager(
 
     private fun resendPayment(paymentTask: ResendToshiPaymentTask) {
         val sofaMessageId = paymentTask.sofaMessage.privateKey
-        sofaMessageManager.getSofaMessageById(sofaMessageId)
+        chatManager.getSofaMessageById(sofaMessageId)
                 .map { paymentTask.copy(sofaMessage = it) }
                 .subscribe(
                         { handleOutgoingResendPayment(it) },
@@ -149,7 +149,7 @@ class OutgoingTransactionManager(
 
     private fun updateMessage(user: User, message: SofaMessage) {
         val recipient = Recipient(user)
-        sofaMessageManager.updateMessage(recipient, message)
+        chatManager.updateMessage(recipient, message)
     }
 
     private fun sendExternalPayment(paymentTask: ExternalPaymentTask) {
@@ -208,7 +208,7 @@ class OutgoingTransactionManager(
         // receiver will be null if this is an external payment
         receiver?.let {
             message.sendState = SendState.STATE_SENDING
-            sofaMessageManager.saveTransaction(receiver, message)
+            chatManager.saveTransaction(receiver, message)
         }
     }
 

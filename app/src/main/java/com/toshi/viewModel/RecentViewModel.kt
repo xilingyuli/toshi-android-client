@@ -44,7 +44,7 @@ class RecentViewModel : ViewModel() {
     }
 
     private fun attachSubscriber() {
-        val sub = getSofaMessageManager()
+        val sub = getChatManager()
                 .registerForAllConversationChanges()
                 .filter { it.allMessages.size > 0 }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -63,8 +63,8 @@ class RecentViewModel : ViewModel() {
 
     fun getAcceptedAndUnAcceptedConversations() {
         val sub = Single.zip(
-                getSofaMessageManager().loadAllAcceptedConversations(),
-                getSofaMessageManager().loadAllUnacceptedConversations(),
+                getChatManager().loadAllAcceptedConversations(),
+                getChatManager().loadAllUnacceptedConversations(),
                 { t1, t2 -> Pair(t1, t2) }
         )
         .observeOn(AndroidSchedulers.mainThread())
@@ -93,11 +93,11 @@ class RecentViewModel : ViewModel() {
         this.subscriptions.add(sub)
     }
 
-    private fun getConversation(threadId: String) = getSofaMessageManager().loadConversation(threadId)
+    private fun getConversation(threadId: String) = getChatManager().loadConversation(threadId)
 
     private fun isBlocked(threadId: String) = getRecipientManager().isUserBlocked(threadId)
 
-    private fun isMuted(threadId: String) = getSofaMessageManager().isConversationMuted(threadId)
+    private fun isMuted(threadId: String) = getChatManager().isConversationMuted(threadId)
 
     fun handleSelectedOption(conversation: Conversation, option: Option) {
         when (option) {
@@ -111,8 +111,8 @@ class RecentViewModel : ViewModel() {
 
     private fun setMute(conversation: Conversation, mute: Boolean) {
         val muteAction =
-                if (mute) getSofaMessageManager().muteConversation(conversation)
-                else getSofaMessageManager().unmuteConversation(conversation)
+                if (mute) getChatManager().muteConversation(conversation)
+                else getChatManager().unmuteConversation(conversation)
 
         val sub = muteAction
                 .observeOn(AndroidSchedulers.mainThread())
@@ -139,7 +139,7 @@ class RecentViewModel : ViewModel() {
         this.subscriptions.add(sub)
     }
 
-    private fun getSofaMessageManager() = BaseApplication.get().chatManager
+    private fun getChatManager() = BaseApplication.get().chatManager
 
     private fun getRecipientManager() = BaseApplication.get().recipientManager
 

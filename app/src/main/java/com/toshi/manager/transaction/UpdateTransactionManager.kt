@@ -39,7 +39,7 @@ import java.io.IOException
 
 class UpdateTransactionManager(private val pendingTransactionStore: PendingTransactionStore) {
 
-    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
+    private val chatManager by lazy { BaseApplication.get().chatManager }
     private val balanceManager by lazy { BaseApplication.get().balanceManager }
     private val updatePaymentQueue by lazy { PublishSubject.create<Payment>() }
     private val subscriptions by lazy { CompositeSubscription() }
@@ -144,7 +144,7 @@ class UpdateTransactionManager(private val pendingTransactionStore: PendingTrans
             val recipient = Recipient(remoteUser)
             val updatedPayload = SofaAdapters.get().toJson(paymentRequest)
             sofaMessage.payload = updatedPayload
-            sofaMessageManager.updateMessage(recipient, sofaMessage)
+            chatManager.updateMessage(recipient, sofaMessage)
         } catch (ex: IOException) {
             LogUtil.exception("Error changing Payment Request state $ex")
         }

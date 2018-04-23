@@ -42,7 +42,7 @@ class ConversationRequestViewModel : ViewModel() {
     }
 
     private fun attachSubscriber() {
-        val sub = getSofaMessageManager()
+        val sub = getChatManager()
                 .registerForAllConversationChanges()
                 .filter { !it.conversationStatus.isAccepted }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -57,7 +57,7 @@ class ConversationRequestViewModel : ViewModel() {
     fun getUnacceptedConversationsAndLocalUser() {
         val sub =
                 Single.zip(
-                        getSofaMessageManager().loadAllUnacceptedConversations(),
+                        getChatManager().loadAllUnacceptedConversations(),
                         getUserManager().getCurrentUser(),
                         { conversations, localUser -> Pair(conversations, localUser) }
                 )
@@ -72,7 +72,7 @@ class ConversationRequestViewModel : ViewModel() {
     }
 
     fun acceptConversation(conversation: Conversation) {
-        val sub = getSofaMessageManager()
+        val sub = getChatManager()
                 .acceptConversation(conversation)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -84,7 +84,7 @@ class ConversationRequestViewModel : ViewModel() {
     }
 
     fun rejectConversation(conversation: Conversation) {
-        val sub = getSofaMessageManager()
+        val sub = getChatManager()
                 .rejectConversation(conversation)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -95,7 +95,7 @@ class ConversationRequestViewModel : ViewModel() {
         subscriptions.add(sub)
     }
 
-    private fun getSofaMessageManager() = BaseApplication.get().chatManager
+    private fun getChatManager() = BaseApplication.get().chatManager
 
     private fun getUserManager() = BaseApplication.get().userManager
 

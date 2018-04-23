@@ -50,7 +50,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
     private val userManager by lazy { BaseApplication.get().userManager }
     private val transactionManager by lazy { BaseApplication.get().transactionManager }
     private val toshiManager by lazy { BaseApplication.get().toshiManager }
-    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
+    private val chatManager by lazy { BaseApplication.get().chatManager }
     private val chatMessageQueue by lazy { ChatMessageQueue(AsyncOutgoingMessageQueue()) }
 
     var capturedImageName: String? = null
@@ -146,7 +146,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
 
     private fun initChatMessageStore(recipient: Recipient) {
         ChatNotificationManager.suppressNotificationsForConversation(recipient.threadId)
-        val conversationObservables = sofaMessageManager.registerForConversationChanges(recipient.threadId)
+        val conversationObservables = chatManager.registerForConversationChanges(recipient.threadId)
 
         val chatSub = conversationObservables
                 .newMessageSubject
@@ -177,7 +177,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
                         { LogUtil.exception(it) }
                 )
 
-        val deleteSub = sofaMessageManager
+        val deleteSub = chatManager
                 .registerForDeletedMessages(recipient.threadId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -196,7 +196,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
 
     fun loadConversation() {
         val sub = getRecipient()
-                .flatMap { sofaMessageManager.loadConversationAndResetUnreadCounter(threadId) }
+                .flatMap { chatManager.loadConversationAndResetUnreadCounter(threadId) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { handleConversation(it) },
@@ -215,7 +215,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
     private fun tryInitAppConversation(recipient: Recipient) {
         if (recipient.isGroup || !recipient.user.isBot) return
         val localUser = getCurrentLocalUser() ?: return
-        sofaMessageManager.sendInitMessage(localUser, recipient)
+        chatManager.sendInitMessage(localUser, recipient)
     }
 
     fun sendPaymentWithValue(value: String) {
@@ -328,7 +328,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
         else LogUtil.w("Invalid payment task in this context")
     }
 
-    fun resendMessage(sofaMessage: SofaMessage) = sofaMessageManager.resendPendingMessage(sofaMessage)
+    fun resendMessage(sofaMessage: SofaMessage) = chatManager.resendPendingMessage(sofaMessage)
 
     fun deleteMessage(sofaMessage: SofaMessage) {
         val recipient = recipient.value
@@ -337,7 +337,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
             return
         }
 
-        val sub = sofaMessageManager
+        val sub = chatManager
                 .deleteMessage(recipient, sofaMessage)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -374,7 +374,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
     }
 
     fun acceptConversation(conversation: Conversation) {
-        val sub = sofaMessageManager
+        val sub = chatManager
                 .acceptConversation(conversation)
                 .observeOn(AndroidSchedulers.mainThread())
                 .toCompletable()
@@ -387,7 +387,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
     }
 
     fun declineConversation(conversation: Conversation) {
-        val sub = sofaMessageManager
+        val sub = chatManager
                 .rejectConversation(conversation)
                 .observeOn(AndroidSchedulers.mainThread())
                 .toCompletable()
@@ -400,7 +400,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
     }
 
     fun respondToPaymentRequest(messageId: String) {
-        val sub = sofaMessageManager
+        val sub = chatManager
                 .getSofaMessageById(messageId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -437,7 +437,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
 
     private fun stopListeningForMessageChanges() {
         recipient.value?.let {
-            sofaMessageManager
+            chatManager
                     .stopListeningForChanges(it.threadId)
             ChatNotificationManager.stopNotificationSuppression(it.threadId)
         }

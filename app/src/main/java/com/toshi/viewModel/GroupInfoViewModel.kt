@@ -30,13 +30,13 @@ import rx.subscriptions.CompositeSubscription
 class GroupInfoViewModel : ViewModel() {
 
     private val recipientManager = BaseApplication.get().recipientManager
-    private val sofaMessageManager = BaseApplication.get().chatManager
+    private val chatManager = BaseApplication.get().chatManager
     private val subscriptions by lazy { CompositeSubscription() }
 
     val group by lazy { SingleLiveEvent<Group>() }
     val fetchGroupError by lazy { SingleLiveEvent<Throwable>() }
     val leaveGroup by lazy { SingleLiveEvent<Boolean>() }
-    val leaveGroupError by lazy { SingleLiveEvent<Throwable>() }
+    val leaveGroupError by lazy { SingleLiveEvent<Int>() }
     val isMuted by lazy { MutableLiveData<Boolean>() }
     val isMutedError by lazy { SingleLiveEvent<Int>() }
     val isUpdatingMuteState by lazy { MutableLiveData<Boolean>() }
@@ -54,20 +54,24 @@ class GroupInfoViewModel : ViewModel() {
     }
 
     fun leaveGroup() {
-        group.value?.let {
-            val leaveSub = sofaMessageManager
-                    .leaveGroup(it)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            { leaveGroup.value = true },
-                            { leaveGroupError.value = it }
-                    )
-            subscriptions.add(leaveSub)
+        val group = group.value
+        if (group == null) {
+            leaveGroupError.value = R.string.error_leave_group
+            return
         }
+
+        val leaveSub = chatManager
+                .leaveGroup(group)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { leaveGroup.value = true },
+                        { leaveGroupError.value = R.string.error_leave_group }
+                )
+        subscriptions.add(leaveSub)
     }
 
     private fun isMuted(group: Group) {
-        val sub = sofaMessageManager
+        val sub = chatManager
                 .isConversationMuted(group.id)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -90,7 +94,7 @@ class GroupInfoViewModel : ViewModel() {
             return
         }
 
-        val sub = sofaMessageManager
+        val sub = chatManager
                 .muteConversation(groupId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { isUpdatingMuteState.value = true }
@@ -110,7 +114,7 @@ class GroupInfoViewModel : ViewModel() {
             return
         }
 
-        val sub = sofaMessageManager
+        val sub = chatManager
                 .unmuteConversation(groupId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { isUpdatingMuteState.value = true }

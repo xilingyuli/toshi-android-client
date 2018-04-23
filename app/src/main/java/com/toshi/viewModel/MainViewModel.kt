@@ -18,17 +18,17 @@ class MainViewModel : ViewModel() {
     }
 
     private fun attachUnreadMessagesSubscription() {
-        val allChangesSubscription = getSofaMessageManager()
+        val allChangesSubscription = getChatManager()
                 .registerForAllConversationChanges()
                 .filter { !it.latestMessage.isLocalStatusMessage() }
-                .flatMap { getSofaMessageManager().areUnreadMessages().toObservable() }
+                .flatMap { getChatManager().areUnreadMessages().toObservable() }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { unreadMessages.value = it },
                         { LogUtil.exception("Error while fetching unread messages $it") }
                 )
 
-        val firstTimeSubscription = getSofaMessageManager()
+        val firstTimeSubscription = getChatManager()
                 .areUnreadMessages()
                 .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -40,7 +40,7 @@ class MainViewModel : ViewModel() {
         this.subscriptions.addAll(allChangesSubscription, firstTimeSubscription)
     }
 
-    private fun getSofaMessageManager() = BaseApplication.get().chatManager
+    private fun getChatManager() = BaseApplication.get().chatManager
 
     override fun onCleared() {
         super.onCleared()

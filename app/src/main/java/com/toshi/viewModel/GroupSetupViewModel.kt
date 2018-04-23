@@ -33,7 +33,7 @@ import rx.subscriptions.CompositeSubscription
 
 class GroupSetupViewModel : ViewModel() {
 
-    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
+    private val chatManager by lazy { BaseApplication.get().chatManager }
     private val userManager by lazy { BaseApplication.get().userManager }
     private val subscriptions by lazy { CompositeSubscription() }
 
@@ -73,7 +73,7 @@ class GroupSetupViewModel : ViewModel() {
 
     private fun addCurrentUserToGroup(group: Group) = userManager.getCurrentUser().map { group.addMember(it) }
 
-    private fun createConversationFromGroup(group: Group) = sofaMessageManager.createConversationFromGroup(group)
+    private fun createConversationFromGroup(group: Group) = chatManager.createConversationFromGroup(group)
 
     private fun generateAvatarFromUri(avatarUri: Uri?) = ImageUtil.loadAsBitmap(avatarUri, BaseApplication.get())
 

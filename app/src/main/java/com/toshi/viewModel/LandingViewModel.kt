@@ -5,9 +5,9 @@ import android.arch.lifecycle.ViewModel
 import com.toshi.R
 import com.toshi.manager.OnboardingManager
 import com.toshi.model.local.Conversation
-import com.toshi.util.sharedPrefs.AppPrefs
 import com.toshi.util.SingleLiveEvent
 import com.toshi.util.logging.LogUtil
+import com.toshi.util.sharedPrefs.AppPrefs
 import com.toshi.view.BaseApplication
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 class LandingViewModel : ViewModel() {
 
     private val subscriptions by lazy { CompositeSubscription() }
-    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
+    private val chatManager by lazy { BaseApplication.get().chatManager }
     private val toshiManager by lazy { BaseApplication.get().toshiManager }
 
     val isLoading by lazy { MutableLiveData<Boolean>() }
@@ -48,13 +48,13 @@ class LandingViewModel : ViewModel() {
     }
 
     private fun startListeningToBotConversation() {
-        val sub = sofaMessageManager
+        val sub = chatManager
                 .registerForAllConversationChanges()
                 .filter { isOnboardingBot(it) }
                 .timeout(10, TimeUnit.SECONDS)
                 .first()
                 .toSingle()
-                .flatMap { sofaMessageManager.acceptConversation(it) }
+                .flatMap { chatManager.acceptConversation(it) }
                 .map { conversation -> conversation.recipient.user.toshiId }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

@@ -170,7 +170,7 @@ class ChatManager(
                 .toSingle { conversation }
     }
 
-    fun leaveGroup(group: Group): Completable = chatManager.leaveGroup(group)
+    fun leaveGroup(group: Group): Completable = sofaMessageManager.leaveGroup(group)
 
     fun sendAndSaveMessage(receiver: Recipient, message: SofaMessage) {
         sofaMessageManager.sendAndSaveMessage(receiver, message)

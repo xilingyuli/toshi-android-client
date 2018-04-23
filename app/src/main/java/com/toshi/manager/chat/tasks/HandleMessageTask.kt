@@ -50,7 +50,7 @@ class HandleMessageTask(
 ) {
     private val taskProcessAttachments by lazy { ProcessAttachmentsTask(messageReceiver) }
     private val recipientManager by lazy { BaseApplication.get().recipientManager }
-    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
+    private val chatManager by lazy { BaseApplication.get().chatManager }
 
     fun run(messageSource: String, dataMessage: SignalServiceDataMessage): IncomingMessage? {
         val signalGroup = dataMessage.groupInfo
@@ -121,7 +121,7 @@ class HandleMessageTask(
             val payload = SofaAdapters.get().toJson(initMessage)
             val newSofaMessage = SofaMessage().makeNew(sender, payload)
             val recipient = Recipient(sender)
-            sofaMessageManager.sendMessage(recipient, newSofaMessage)
+            chatManager.sendMessage(recipient, newSofaMessage)
         } catch (e: IOException) {
             LogUtil.exception("Failed to respond to incoming init request. $e")
         }

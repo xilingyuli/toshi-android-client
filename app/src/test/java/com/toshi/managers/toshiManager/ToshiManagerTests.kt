@@ -22,9 +22,9 @@ import com.toshi.crypto.HDWallet
 import com.toshi.crypto.HdWalletBuilder
 import com.toshi.exception.InvalidMasterSeedException
 import com.toshi.invalidMasterSeed
+import com.toshi.manager.ChatManager
 import com.toshi.manager.RecipientManager
 import com.toshi.manager.ReputationManager
-import com.toshi.manager.ChatManager
 import com.toshi.manager.ToshiManager
 import com.toshi.manager.TransactionManager
 import com.toshi.manager.UserManager
@@ -65,7 +65,7 @@ class ToshiManagerTests {
         toshiManager = ToshiManager(
                 balanceManager = mockBalanceManager(),
                 transactionManager = mockTransactionManager(),
-                chatManager = mockSofaMessageManager(),
+                chatManager = mockChatManager(),
                 recipientManager = recipientManager,
                 userManager = mockUserManager(recipientManager),
                 reputationManager = mockReputationManager(),
@@ -83,12 +83,12 @@ class ToshiManagerTests {
         return TransactionManagerMocker().initTransactionManagerWithoutWallet()
     }
 
-    private fun mockSofaMessageManager(): ChatManager {
-        val sofaMessageManager = Mockito.mock(ChatManager::class.java)
+    private fun mockChatManager(): ChatManager {
+        val chatManager = Mockito.mock(ChatManager::class.java)
         Mockito
-                .`when`(sofaMessageManager.init(any(HDWallet::class.java)))
+                .`when`(chatManager.init(any(HDWallet::class.java)))
                 .thenReturn(Completable.complete())
-        return sofaMessageManager
+        return chatManager
     }
 
     private fun mockUserManager(recipientManager: RecipientManager): UserManager {

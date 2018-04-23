@@ -35,7 +35,7 @@ class EditGroupViewModel(val groupId: String) : ViewModel() {
 
     private val subscriptions by lazy { CompositeSubscription() }
     private val recipientManager by lazy { BaseApplication.get().recipientManager }
-    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
+    private val chatManager by lazy { BaseApplication.get().chatManager }
 
     val group by lazy { MutableLiveData<Group>() }
     val isUpdatingGroup by lazy { MutableLiveData<Boolean>() }
@@ -82,7 +82,7 @@ class EditGroupViewModel(val groupId: String) : ViewModel() {
         return group
     }
 
-    private fun saveUpdatedGroup(group: Group) = sofaMessageManager.updateConversationFromGroup(group)
+    private fun saveUpdatedGroup(group: Group) = chatManager.updateConversationFromGroup(group)
 
     private fun generateAvatarFromUri(avatarUri: Uri?) = ImageUtil.loadAsBitmap(avatarUri, BaseApplication.get())
 
