@@ -37,7 +37,7 @@ public class RegistrationIntentService extends IntentService {
 
         BaseApplication
                 .get()
-                .getSofaMessageManager()
+                .getChatManager()
                 .forceRegisterChatGcm();
     }
 }

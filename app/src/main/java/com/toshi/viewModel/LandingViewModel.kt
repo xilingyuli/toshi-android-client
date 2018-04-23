@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 class LandingViewModel : ViewModel() {
 
     private val subscriptions by lazy { CompositeSubscription() }
-    private val sofaMessageManager by lazy { BaseApplication.get().sofaMessageManager }
+    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
     private val toshiManager by lazy { BaseApplication.get().toshiManager }
 
     val isLoading by lazy { MutableLiveData<Boolean>() }

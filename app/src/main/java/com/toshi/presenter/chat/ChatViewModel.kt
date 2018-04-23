@@ -50,7 +50,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
     private val userManager by lazy { BaseApplication.get().userManager }
     private val transactionManager by lazy { BaseApplication.get().transactionManager }
     private val toshiManager by lazy { BaseApplication.get().toshiManager }
-    private val sofaMessageManager by lazy { BaseApplication.get().sofaMessageManager }
+    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
     private val chatMessageQueue by lazy { ChatMessageQueue(AsyncOutgoingMessageQueue()) }
 
     var capturedImageName: String? = null

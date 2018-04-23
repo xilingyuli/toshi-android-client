@@ -35,7 +35,7 @@ class EditGroupViewModel(val groupId: String) : ViewModel() {
 
     private val subscriptions by lazy { CompositeSubscription() }
     private val recipientManager by lazy { BaseApplication.get().recipientManager }
-    private val sofaMessageManager by lazy { BaseApplication.get().sofaMessageManager }
+    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
 
     val group by lazy { MutableLiveData<Group>() }
     val isUpdatingGroup by lazy { MutableLiveData<Boolean>() }

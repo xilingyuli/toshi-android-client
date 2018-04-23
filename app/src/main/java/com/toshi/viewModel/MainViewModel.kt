@@ -40,7 +40,7 @@ class MainViewModel : ViewModel() {
         this.subscriptions.addAll(allChangesSubscription, firstTimeSubscription)
     }
 
-    private fun getSofaMessageManager() = BaseApplication.get().sofaMessageManager
+    private fun getSofaMessageManager() = BaseApplication.get().chatManager
 
     override fun onCleared() {
         super.onCleared()

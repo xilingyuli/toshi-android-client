@@ -39,7 +39,7 @@ import java.io.IOException
 
 class UpdateTransactionManager(private val pendingTransactionStore: PendingTransactionStore) {
 
-    private val sofaMessageManager by lazy { BaseApplication.get().sofaMessageManager }
+    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
     private val balanceManager by lazy { BaseApplication.get().balanceManager }
     private val updatePaymentQueue by lazy { PublishSubject.create<Payment>() }
     private val subscriptions by lazy { CompositeSubscription() }

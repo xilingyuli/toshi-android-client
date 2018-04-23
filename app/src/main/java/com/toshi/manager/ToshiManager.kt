@@ -44,7 +44,7 @@ class ToshiManager(
         val transactionManager: TransactionManager = TransactionManager(),
         val recipientManager: RecipientManager = RecipientManager(),
         val userManager: UserManager = UserManager(recipientManager = recipientManager),
-        val sofaMessageManager: SofaMessageManager = SofaMessageManager(userManager = userManager),
+        val chatManager: ChatManager = ChatManager(userManager = userManager),
         val reputationManager: ReputationManager = ReputationManager(),
         val dappManager: DappManager = DappManager(),
         private val baseApplication: BaseApplication = BaseApplication.get(),
@@ -138,7 +138,7 @@ class ToshiManager(
         .onErrorComplete()
         .andThen(Completable.mergeDelayError(
                 balanceManager.init(wallet),
-                sofaMessageManager.init(wallet),
+                chatManager.init(wallet),
                 userManager.init(wallet)
         ))
         .doOnError { handleInitManagersError(it) }
@@ -188,10 +188,10 @@ class ToshiManager(
         signalPrefs.clear()
     }
 
-    private fun clearMessageSession() = sofaMessageManager.deleteSession()
+    private fun clearMessageSession() = chatManager.deleteSession()
 
     private fun clearUserSession() {
-        sofaMessageManager.clear()
+        chatManager.clear()
         userManager.clear()
         recipientManager.clear()
         balanceManager.clear()

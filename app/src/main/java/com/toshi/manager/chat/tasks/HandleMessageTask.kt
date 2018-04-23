@@ -50,7 +50,7 @@ class HandleMessageTask(
 ) {
     private val taskProcessAttachments by lazy { ProcessAttachmentsTask(messageReceiver) }
     private val recipientManager by lazy { BaseApplication.get().recipientManager }
-    private val sofaMessageManager by lazy { BaseApplication.get().sofaMessageManager }
+    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
 
     fun run(messageSource: String, dataMessage: SignalServiceDataMessage): IncomingMessage? {
         val signalGroup = dataMessage.groupInfo

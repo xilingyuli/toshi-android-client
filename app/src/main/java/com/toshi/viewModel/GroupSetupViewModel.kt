@@ -33,7 +33,7 @@ import rx.subscriptions.CompositeSubscription
 
 class GroupSetupViewModel : ViewModel() {
 
-    private val sofaMessageManager by lazy { BaseApplication.get().sofaMessageManager }
+    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
     private val userManager by lazy { BaseApplication.get().userManager }
     private val subscriptions by lazy { CompositeSubscription() }
 

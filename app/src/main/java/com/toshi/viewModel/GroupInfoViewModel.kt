@@ -30,7 +30,7 @@ import rx.subscriptions.CompositeSubscription
 class GroupInfoViewModel : ViewModel() {
 
     private val recipientManager = BaseApplication.get().recipientManager
-    private val sofaMessageManager = BaseApplication.get().sofaMessageManager
+    private val sofaMessageManager = BaseApplication.get().chatManager
     private val subscriptions by lazy { CompositeSubscription() }
 
     val group by lazy { SingleLiveEvent<Group>() }

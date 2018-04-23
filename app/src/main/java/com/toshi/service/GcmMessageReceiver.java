@@ -172,7 +172,7 @@ public class GcmMessageReceiver extends FirebaseMessagingService {
     private IncomingMessage getIncomingMessage() throws TimeoutException, InterruptedException {
         return BaseApplication
                 .get()
-                .getSofaMessageManager()
+                .getChatManager()
                 .fetchLatestMessage()
                 .timeout(INCOMING_MESSAGE_TIMEOUT, TimeUnit.SECONDS)
                 .toBlocking()

@@ -31,7 +31,7 @@ import com.toshi.manager.BalanceManager;
 import com.toshi.manager.DappManager;
 import com.toshi.manager.RecipientManager;
 import com.toshi.manager.ReputationManager;
-import com.toshi.manager.SofaMessageManager;
+import com.toshi.manager.ChatManager;
 import com.toshi.manager.ToshiManager;
 import com.toshi.manager.TransactionManager;
 import com.toshi.manager.UserManager;
@@ -101,13 +101,13 @@ public final class BaseApplication extends MultiDexApplication implements Lifecy
     public void onResumed() {
         if (!this.inBackground) return;
         this.inBackground = false;
-        this.toshiManager.getSofaMessageManager().resumeMessageReceiving();
+        this.toshiManager.getChatManager().resumeMessageReceiving();
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onStop() {
         this.inBackground = true;
-        this.toshiManager.getSofaMessageManager().disconnect();
+        this.toshiManager.getChatManager().disconnect();
     }
 
     public BehaviorSubject<Boolean> isConnectedSubject() {
@@ -127,8 +127,8 @@ public final class BaseApplication extends MultiDexApplication implements Lifecy
 
     // Helper functions
     // Unwrap the ToshiManager container to reduce lines of code
-    public final SofaMessageManager getSofaMessageManager() {
-        return this.toshiManager.getSofaMessageManager();
+    public final ChatManager getChatManager() {
+        return this.toshiManager.getChatManager();
     }
 
     public final TransactionManager getTransactionManager() {

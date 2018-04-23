@@ -61,7 +61,7 @@ public class SignOutPresenter implements Presenter<SignOutActivity> {
     private Completable unregisterChatGcm() {
         return BaseApplication
                 .get()
-                .getSofaMessageManager()
+                .getChatManager()
                 .tryUnregisterGcm();
     }
 

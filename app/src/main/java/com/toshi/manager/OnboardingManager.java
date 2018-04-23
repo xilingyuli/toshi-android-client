@@ -62,7 +62,7 @@ public class OnboardingManager {
         }
         BaseApplication
                 .get()
-                .getSofaMessageManager()
+                .getChatManager()
                 .sendInitMessage(sender, new Recipient(onboardingBot));
     }
 }

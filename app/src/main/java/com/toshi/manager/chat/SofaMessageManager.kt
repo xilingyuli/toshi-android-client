@@ -45,7 +45,7 @@ import rx.Single
 import rx.Subscription
 import rx.schedulers.Schedulers
 
-class ChatManager(
+class SofaMessageManager(
         private val conversationStore: ConversationStore,
         private val baseApplication: BaseApplication,
         private val userManager: UserManager,

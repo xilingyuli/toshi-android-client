@@ -131,7 +131,7 @@ public class ChatNotificationManager extends ToshiNotificationBuilder {
     private static Single<ConversationStatus> getConversationStatus(final String threadId) {
         return BaseApplication
                 .get()
-                .getSofaMessageManager()
+                .getChatManager()
                 .loadConversation(threadId)
                 .map(Conversation::getConversationStatus);
     }

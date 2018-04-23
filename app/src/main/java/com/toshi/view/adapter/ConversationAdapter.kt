@@ -65,7 +65,7 @@ class ConversationAdapter(
     override fun deleteItem(item: Conversation) {
         BaseApplication
                 .get()
-                .sofaMessageManager
+                .chatManager
                 .deleteConversation(item)
                 .subscribe(
                         { }

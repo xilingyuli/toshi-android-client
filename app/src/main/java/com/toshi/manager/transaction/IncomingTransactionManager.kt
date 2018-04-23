@@ -38,7 +38,7 @@ import rx.subscriptions.CompositeSubscription
 
 class IncomingTransactionManager(private val pendingTransactionStore: PendingTransactionStore) {
 
-    private val sofaMessageManager by lazy { BaseApplication.get().sofaMessageManager }
+    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
     private val recipientManager by lazy { BaseApplication.get().recipientManager }
     private val balanceManager by lazy { BaseApplication.get().balanceManager }
 

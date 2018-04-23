@@ -139,7 +139,7 @@ class RecentViewModel : ViewModel() {
         this.subscriptions.add(sub)
     }
 
-    private fun getSofaMessageManager() = BaseApplication.get().sofaMessageManager
+    private fun getSofaMessageManager() = BaseApplication.get().chatManager
 
     private fun getRecipientManager() = BaseApplication.get().recipientManager
 

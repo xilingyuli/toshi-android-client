@@ -95,7 +95,7 @@ class ConversationRequestViewModel : ViewModel() {
         subscriptions.add(sub)
     }
 
-    private fun getSofaMessageManager() = BaseApplication.get().sofaMessageManager
+    private fun getSofaMessageManager() = BaseApplication.get().chatManager
 
     private fun getUserManager() = BaseApplication.get().userManager
 

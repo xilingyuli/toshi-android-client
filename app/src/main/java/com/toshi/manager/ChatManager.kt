@@ -19,7 +19,7 @@ package com.toshi.manager
 
 
 import com.toshi.crypto.HDWallet
-import com.toshi.manager.chat.ChatManager
+import com.toshi.manager.chat.SofaMessageManager
 import com.toshi.manager.store.ConversationStore
 import com.toshi.model.local.Conversation
 import com.toshi.model.local.ConversationObservables
@@ -35,15 +35,15 @@ import rx.Scheduler
 import rx.Single
 import rx.schedulers.Schedulers
 
-class SofaMessageManager(
+class ChatManager(
         private val userManager: UserManager,
         private val conversationStore: ConversationStore = ConversationStore(),
         private val baseApplication: BaseApplication = BaseApplication.get(),
-        private val chatManager: ChatManager = ChatManager(conversationStore, baseApplication, userManager),
+        private val sofaMessageManager: SofaMessageManager = SofaMessageManager(conversationStore, baseApplication, userManager),
         private val scheduler: Scheduler = Schedulers.io()
 ) {
 
-    fun init(wallet: HDWallet): Completable = chatManager.initEverything(wallet)
+    fun init(wallet: HDWallet): Completable = sofaMessageManager.initEverything(wallet)
 
     fun loadAllAcceptedConversations(): Single<List<Conversation>> {
         return conversationStore
@@ -160,7 +160,7 @@ class SofaMessageManager(
 
     fun rejectConversation(conversation: Conversation): Single<Conversation> {
         return if (conversation.isGroup) {
-            chatManager
+            sofaMessageManager
                     .leaveGroup(conversation.recipient.group)
                     .toSingle { conversation }
         } else baseApplication
@@ -173,46 +173,46 @@ class SofaMessageManager(
     fun leaveGroup(group: Group): Completable = chatManager.leaveGroup(group)
 
     fun sendAndSaveMessage(receiver: Recipient, message: SofaMessage) {
-        chatManager.sendAndSaveMessage(receiver, message)
+        sofaMessageManager.sendAndSaveMessage(receiver, message)
     }
 
     fun sendMessage(recipient: Recipient, message: SofaMessage) {
-        chatManager.sendMessage(recipient, message)
+        sofaMessageManager.sendMessage(recipient, message)
     }
 
     fun sendInitMessage(sender: User, recipient: Recipient) {
-        chatManager.sendInitMessage(sender, recipient)
+        sofaMessageManager.sendInitMessage(sender, recipient)
     }
 
     fun saveTransaction(user: User, message: SofaMessage) {
-        chatManager.saveTransaction(user, message)
+        sofaMessageManager.saveTransaction(user, message)
     }
 
     fun updateMessage(recipient: Recipient, message: SofaMessage) {
-        chatManager.updateMessage(recipient, message)
+        sofaMessageManager.updateMessage(recipient, message)
     }
 
-    fun resendPendingMessage(sofaMessage: SofaMessage) = chatManager.resendPendingMessage(sofaMessage)
+    fun resendPendingMessage(sofaMessage: SofaMessage) = sofaMessageManager.resendPendingMessage(sofaMessage)
 
     fun createConversationFromGroup(group: Group): Single<Conversation> {
-        return chatManager.createConversationFromGroup(group)
+        return sofaMessageManager.createConversationFromGroup(group)
     }
 
     fun updateConversationFromGroup(group: Group): Completable {
-        return chatManager.updateConversationFromGroup(group)
+        return sofaMessageManager.updateConversationFromGroup(group)
     }
 
-    fun resumeMessageReceiving() = chatManager.resumeMessageReceiving()
+    fun resumeMessageReceiving() = sofaMessageManager.resumeMessageReceiving()
 
-    fun tryUnregisterGcm(): Completable = chatManager.tryUnregisterGcm()
+    fun tryUnregisterGcm(): Completable = sofaMessageManager.tryUnregisterGcm()
 
-    fun forceRegisterChatGcm(): Completable = chatManager.forceRegisterChatGcm()
+    fun forceRegisterChatGcm(): Completable = sofaMessageManager.forceRegisterChatGcm()
 
-    fun fetchLatestMessage(): Single<IncomingMessage> = chatManager.fetchLatestMessage()
+    fun fetchLatestMessage(): Single<IncomingMessage> = sofaMessageManager.fetchLatestMessage()
 
-    fun clear() = chatManager.clear()
+    fun clear() = sofaMessageManager.clear()
 
-    fun deleteSession() = chatManager.deleteSession()
+    fun deleteSession() = sofaMessageManager.deleteSession()
 
-    fun disconnect() = chatManager.disconnect()
+    fun disconnect() = sofaMessageManager.disconnect()
 }

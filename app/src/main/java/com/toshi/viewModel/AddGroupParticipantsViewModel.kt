@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 
 class AddGroupParticipantsViewModel(val groupId: String) : ViewModel() {
 
-    private val sofaMessageManager by lazy { BaseApplication.get().sofaMessageManager }
+    private val sofaMessageManager by lazy { BaseApplication.get().chatManager }
     private val recipientManager by lazy { BaseApplication.get().recipientManager }
 
     private val subscriptions by lazy { CompositeSubscription() }

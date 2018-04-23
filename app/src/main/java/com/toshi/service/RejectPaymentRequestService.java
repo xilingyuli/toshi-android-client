@@ -73,7 +73,7 @@ public class RejectPaymentRequestService extends IntentService {
     private SofaMessage getSofaMessageFromId(final String messageId) {
         return BaseApplication
                 .get()
-                .getSofaMessageManager()
+                .getChatManager()
                 .getSofaMessageById(messageId)
                 .timeout(5000, TimeUnit.MILLISECONDS)
                 .toBlocking()
