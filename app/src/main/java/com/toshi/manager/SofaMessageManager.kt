@@ -60,7 +60,8 @@ class SofaMessageManager(
         private val trustStore: SignalTrustStore = SignalTrustStore(),
         private val signalServiceUrl: SignalServiceUrl = SignalServiceUrl(baseApplication.getString(R.string.chat_url), trustStore),
         private val signalServiceUrls: Array<SignalServiceUrl> = Array(1, { signalServiceUrl }),
-        private var protocolStore: ProtocolStore = ProtocolStore().init(),
+        private val protocolStore: ProtocolStore = ProtocolStore().init(),
+        private val signalPrefs: SignalPrefs = SignalPrefs,
         private val userAgent: String = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME + ":" + BuildConfig.VERSION_CODE,
         private val scheduler: Scheduler = Schedulers.io()
 ) {
@@ -258,12 +259,9 @@ class SofaMessageManager(
     }
 
     fun resumeMessageReceiving() {
-        if (haveRegisteredWithServer() && wallet != null && messageReceiver != null) {
-            messageReceiver?.receiveMessagesAsync()
-        }
+        val registeredWithServer = signalPrefs.getRegisteredWithServer()
+        if (registeredWithServer && wallet != null) messageReceiver?.receiveMessagesAsync()
     }
-
-    private fun haveRegisteredWithServer(): Boolean = SignalPrefs.getRegisteredWithServer()
 
     fun loadAllAcceptedConversations(): Single<List<Conversation>> {
         return conversationStore
