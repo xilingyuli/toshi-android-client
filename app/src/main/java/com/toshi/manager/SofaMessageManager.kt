@@ -27,9 +27,8 @@ import com.toshi.crypto.signal.store.SignalTrustStore
 import com.toshi.manager.chat.SofaMessageReceiver
 import com.toshi.manager.chat.SofaMessageRegistration
 import com.toshi.manager.chat.SofaMessageSender
-import com.toshi.manager.chat.tasks.NewGroupMembersTask
-import com.toshi.manager.chat.tasks.NewGroupNameTask
 import com.toshi.manager.model.SofaMessageTask
+import com.toshi.manager.sofaMessageManager.SofaGroupManager
 import com.toshi.manager.store.ConversationStore
 import com.toshi.model.local.Conversation
 import com.toshi.model.local.ConversationObservables
@@ -44,9 +43,7 @@ import com.toshi.util.LocaleUtil
 import com.toshi.util.logging.LogUtil
 import com.toshi.util.sharedPrefs.SignalPrefs
 import com.toshi.view.BaseApplication
-import com.toshi.view.notification.ChatNotificationManager
 import org.whispersystems.signalservice.internal.configuration.SignalServiceUrl
-
 import rx.Completable
 import rx.Observable
 import rx.Scheduler
@@ -66,12 +63,13 @@ class SofaMessageManager(
         private val scheduler: Scheduler = Schedulers.io()
 ) {
 
+    private var wallet: HDWallet? = null
     private var chatService: ChatService? = null
     private var messageRegister: SofaMessageRegistration? = null
     private var messageReceiver: SofaMessageReceiver? = null
     private var messageSender: SofaMessageSender? = null
+    private var groupManager: SofaGroupManager? = null
     private var connectivitySub: Subscription? = null
-    private var wallet: HDWallet? = null
 
     fun init(wallet: HDWallet): Completable {
         this.wallet = wallet
@@ -92,6 +90,7 @@ class SofaMessageManager(
     private fun initSenderAndReceiver(wallet: HDWallet) {
         val messageSender = initMessageSender(wallet, protocolStore, conversationStore, signalServiceUrls)
         this.messageReceiver = initMessageReceiver(wallet, protocolStore, conversationStore, signalServiceUrls, messageSender)
+        this.groupManager = initSofaGroupManager(messageSender, conversationStore)
         this.messageSender = messageSender
     }
 
@@ -115,6 +114,10 @@ class SofaMessageManager(
                 signalServiceUrls,
                 messageSender
         )
+    }
+
+    private fun initSofaGroupManager(messageSender: SofaMessageSender, conversationStore: ConversationStore): SofaGroupManager {
+        return SofaGroupManager(messageSender, conversationStore, baseApplication.userManager)
     }
 
     private fun attachConnectivityObserver() {
@@ -201,61 +204,25 @@ class SofaMessageManager(
 
     fun resendPendingMessage(sofaMessage: SofaMessage) = messageSender?.sendPendingMessage(sofaMessage)
 
-    // Create a new group
     fun createConversationFromGroup(group: Group): Single<Conversation> {
-        return messageSender
-                ?.createGroup(group)
-                ?.flatMap { conversationStore.createNewConversationFromGroup(it) }
-                ?: Single.error(IllegalStateException("SofaMessageSender is null while createConversationFromGroup"))
+        return groupManager
+                ?.createConversationFromGroup(group)
+                ?.subscribeOn(scheduler)
+                ?: Single.error(IllegalStateException("SofaGroupManager is null while createConversationFromGroup"))
     }
 
     fun updateConversationFromGroup(group: Group): Completable {
-        return baseApplication
-                .userManager
-                .getCurrentUser()
-                .map { it?.getToshiId() ?: throw IllegalStateException("Local user is null while updateConversationFromGroup") }
-                .flatMapCompletable { updateGroup(group, it) }
-                .andThen(sendGroupUpdate(group))
-                .subscribeOn(scheduler)
-    }
-
-    private fun sendGroupUpdate(group: Group): Completable {
-        return messageSender
-                ?.sendGroupUpdate(group)
-                ?: Completable.error(IllegalStateException("SofaMessageSender is null while sendGroupUpdate"))
-    }
-
-    private fun updateGroup(group: Group, localUserId: String): Completable {
-        return updateNewParticipants(group, localUserId)
-                .andThen(updateGroupName(group, localUserId))
-                .andThen(updateGroupAvatar(group))
-    }
-
-    private fun updateNewParticipants(group: Group, localUserId: String): Completable {
-        return NewGroupMembersTask(conversationStore, true)
-                .run(group.id, localUserId, group.memberIds)
-                .onErrorComplete()
-    }
-
-    private fun updateGroupName(group: Group, localUserId: String): Completable {
-        return NewGroupNameTask(conversationStore, true)
-                .run(localUserId, group.id, group.title)
-                .onErrorComplete()
-    }
-
-    private fun updateGroupAvatar(group: Group): Completable {
-        if (group.avatar == null) Completable.complete()
-        return conversationStore.saveGroupAvatar(group.id, group.avatar)
-                .onErrorComplete()
+        return groupManager
+                ?.updateConversationFromGroup(group)
+                ?.subscribeOn(scheduler)
+                ?: Completable.error(IllegalStateException("SofaGroupManager is null while updateConversationFromGroup"))
     }
 
     fun leaveGroup(group: Group): Completable {
-        return messageSender
+        return groupManager
                 ?.leaveGroup(group)
-                ?.andThen(conversationStore.deleteByThreadId(group.id))
-                ?.doAfterTerminate { ChatNotificationManager.removeNotificationsForConversation(group.id) }
                 ?.subscribeOn(scheduler)
-                ?: Completable.error(IllegalStateException("SofaMessageSender is nul while leaveGroup"))
+                ?: Completable.error(IllegalStateException("SofaGroupManager is null while leaveGroup"))
     }
 
     fun resumeMessageReceiving() {
@@ -399,9 +366,7 @@ class SofaMessageManager(
                 ?: Completable.error(IllegalStateException("Unable to register as class hasn't been initialised yet."))
     }
 
-    @Throws(InterruptedException::class)
     fun fetchLatestMessage(): Single<IncomingMessage> {
-        while (messageReceiver == null) Thread.sleep(200)
         return messageReceiver
                 ?.fetchLatestMessage()
                 ?: Single.error(IllegalStateException("SofaMessageReceiver is null while fetchLatestMessage"))
