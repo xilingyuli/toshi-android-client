@@ -41,10 +41,10 @@ import java.util.concurrent.TimeUnit
 
 class ToshiManager(
         val balanceManager: BalanceManager = BalanceManager(),
-        val sofaMessageManager: SofaMessageManager = SofaMessageManager(),
         val transactionManager: TransactionManager = TransactionManager(),
         val recipientManager: RecipientManager = RecipientManager(),
         val userManager: UserManager = UserManager(recipientManager = recipientManager),
+        val sofaMessageManager: SofaMessageManager = SofaMessageManager(userManager = userManager),
         val reputationManager: ReputationManager = ReputationManager(),
         val dappManager: DappManager = DappManager(),
         private val baseApplication: BaseApplication = BaseApplication.get(),

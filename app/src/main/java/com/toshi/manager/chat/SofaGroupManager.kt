@@ -15,10 +15,9 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.toshi.manager.sofaMessageManager
+package com.toshi.manager.chat
 
 import com.toshi.manager.UserManager
-import com.toshi.manager.chat.SofaMessageSender
 import com.toshi.manager.chat.tasks.NewGroupMembersTask
 import com.toshi.manager.chat.tasks.NewGroupNameTask
 import com.toshi.manager.store.ConversationStore
