@@ -19,8 +19,10 @@ package com.toshi.viewModel
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import com.toshi.R
 import com.toshi.model.local.Group
 import com.toshi.util.SingleLiveEvent
+import com.toshi.util.logging.LogUtil
 import com.toshi.view.BaseApplication
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
@@ -36,7 +38,7 @@ class GroupInfoViewModel : ViewModel() {
     val leaveGroup by lazy { SingleLiveEvent<Boolean>() }
     val leaveGroupError by lazy { SingleLiveEvent<Throwable>() }
     val isMuted by lazy { MutableLiveData<Boolean>() }
-    val isMutedError by lazy { SingleLiveEvent<Throwable>() }
+    val isMutedError by lazy { SingleLiveEvent<Int>() }
     val isUpdatingMuteState by lazy { MutableLiveData<Boolean>() }
 
     fun fetchGroup(groupId: String) {
@@ -48,7 +50,7 @@ class GroupInfoViewModel : ViewModel() {
                         { group.value = it },
                         { fetchGroupError.value = it }
                 )
-        this.subscriptions.add(subscription)
+        subscriptions.add(subscription)
     }
 
     fun leaveGroup() {
@@ -70,7 +72,7 @@ class GroupInfoViewModel : ViewModel() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { isMuted.value = it },
-                        { isMutedError.value = it }
+                        { LogUtil.exception("Error while GroupInfoViewModel::isMuted", it) }
                 )
 
         subscriptions.add(sub)
@@ -82,33 +84,43 @@ class GroupInfoViewModel : ViewModel() {
     }
 
     private fun muteConversation() {
-        group.value?.id.let {
-            val sub = sofaMessageManager
-                    .muteConversation(it)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnSubscribe { isUpdatingMuteState.value = true }
-                    .doOnTerminate { isUpdatingMuteState.value = false }
-                    .subscribe(
-                            { isMuted.value = true },
-                            { isMutedError.value = it }
-                    )
-            subscriptions.add(sub)
+        val groupId = group.value?.id
+        if (groupId == null) {
+            isMutedError.value = R.string.mute_error
+            return
         }
+
+        val sub = sofaMessageManager
+                .muteConversation(groupId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { isUpdatingMuteState.value = true }
+                .doOnTerminate { isUpdatingMuteState.value = false }
+                .subscribe(
+                        { isMuted.value = true },
+                        { isMutedError.value = R.string.mute_error }
+                )
+
+        subscriptions.add(sub)
     }
 
     private fun unmuteConversation() {
-        group.value?.id.let {
-            val sub = sofaMessageManager
-                    .unmuteConversation(it)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnSubscribe { isUpdatingMuteState.value = true }
-                    .doOnTerminate { isUpdatingMuteState.value = false }
-                    .subscribe(
-                            { isMuted.value = false },
-                            { isMutedError.value = it }
-                    )
-            subscriptions.add(sub)
+        val groupId = group.value?.id
+        if (groupId == null) {
+            isMutedError.value = R.string.unmute_error
+            return
         }
+
+        val sub = sofaMessageManager
+                .unmuteConversation(groupId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { isUpdatingMuteState.value = true }
+                .doOnTerminate { isUpdatingMuteState.value = false }
+                .subscribe(
+                        { isMuted.value = false },
+                        { isMutedError.value = R.string.unmute_error }
+                )
+
+        subscriptions.add(sub)
     }
 
     override fun onCleared() {

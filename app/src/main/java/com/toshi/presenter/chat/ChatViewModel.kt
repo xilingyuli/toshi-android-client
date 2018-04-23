@@ -66,6 +66,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
     val updateConversation by lazy { SingleLiveEvent<Conversation>() }
     val newMessage by lazy { SingleLiveEvent<SofaMessage>() }
     val deleteMessage by lazy { SingleLiveEvent<SofaMessage>() }
+    val deleteError by lazy { SingleLiveEvent<Int>() }
     val error by lazy { SingleLiveEvent<Int>() }
     val viewProfileWithId by lazy { SingleLiveEvent<String>() }
     val isLoading by lazy { MutableLiveData<Boolean>() }
@@ -330,12 +331,18 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
     fun resendMessage(sofaMessage: SofaMessage) = sofaMessageManager.resendPendingMessage(sofaMessage)
 
     fun deleteMessage(sofaMessage: SofaMessage) {
+        val recipient = recipient.value
+        if (recipient == null) {
+            deleteError.value = R.string.delete_message_error
+            return
+        }
+
         val sub = sofaMessageManager
-                .deleteMessage(recipient.value, sofaMessage)
+                .deleteMessage(recipient, sofaMessage)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { deleteMessage.value = sofaMessage },
-                        { deleteMessage.value = null }
+                        { deleteError.value = R.string.delete_message_error }
                 )
 
         subscriptions.add(sub)

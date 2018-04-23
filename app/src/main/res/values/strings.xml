@@ -384,4 +384,7 @@
     <string name="popular_bots">Popular Bots</string>
     <string name="popular_groups">Popular Groups</string>
     <string name="popular_users">Popular Users</string>
+    <string name="mute_error">Unable to mute</string>
+    <string name="unmute_error">Unable to unmute</string>
+    <string name="delete_message_error">Unable to delete message</string>
 </resources>

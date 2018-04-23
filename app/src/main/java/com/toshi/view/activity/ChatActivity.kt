@@ -36,8 +36,8 @@ import com.toshi.extensions.isVisible
 import com.toshi.extensions.openWebView
 import com.toshi.extensions.toast
 import com.toshi.model.local.Conversation
-import com.toshi.model.local.network.Networks
 import com.toshi.model.local.Recipient
+import com.toshi.model.local.network.Networks
 import com.toshi.model.sofa.Control
 import com.toshi.model.sofa.PaymentRequest
 import com.toshi.model.sofa.SofaAdapters
@@ -360,6 +360,9 @@ class ChatActivity : AppCompatActivity() {
         })
         viewModel.deleteMessage.observe(this, Observer {
             deletedMessage -> deletedMessage?.let { messageAdapter.deleteMessage(it) }
+        })
+        viewModel.deleteError.observe(this, Observer {
+            if (it != null) toast(it)
         })
         viewModel.conversation.observe(this, Observer {
             conversation -> conversation?.let { handleConversation(it) }
