@@ -49,6 +49,7 @@ import org.whispersystems.signalservice.internal.configuration.SignalServiceUrl
 
 import rx.Completable
 import rx.Observable
+import rx.Scheduler
 import rx.Single
 import rx.Subscription
 import rx.schedulers.Schedulers
@@ -60,7 +61,8 @@ class SofaMessageManager(
         private val signalServiceUrl: SignalServiceUrl = SignalServiceUrl(baseApplication.getString(R.string.chat_url), trustStore),
         private val signalServiceUrls: Array<SignalServiceUrl> = Array(1, { signalServiceUrl }),
         private var protocolStore: ProtocolStore = ProtocolStore().init(),
-        private val userAgent: String = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME + ":" + BuildConfig.VERSION_CODE
+        private val userAgent: String = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME + ":" + BuildConfig.VERSION_CODE,
+        private val scheduler: Scheduler = Schedulers.io()
 ) {
 
     private var chatService: ChatService? = null
@@ -119,7 +121,7 @@ class SofaMessageManager(
         connectivitySub =
                 baseApplication
                 .isConnectedSubject
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
                 .filter { isConnected -> isConnected }
                 .subscribe(
                         { handleConnectivity() },
@@ -129,7 +131,7 @@ class SofaMessageManager(
 
     private fun handleConnectivity() {
         redoRegistrationTask()
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
                 .subscribe(
                         { },
                         { LogUtil.exception("Error during registration task", it) }
@@ -213,7 +215,7 @@ class SofaMessageManager(
                 .map { it?.getToshiId() ?: throw IllegalStateException("Local user is null while updateConversationFromGroup") }
                 .flatMapCompletable { updateGroup(group, it) }
                 .andThen(sendGroupUpdate(group))
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     private fun sendGroupUpdate(group: Group): Completable {
@@ -251,7 +253,7 @@ class SofaMessageManager(
                 ?.leaveGroup(group)
                 ?.andThen(conversationStore.deleteByThreadId(group.id))
                 ?.doAfterTerminate { ChatNotificationManager.removeNotificationsForConversation(group.id) }
-                ?.subscribeOn(Schedulers.io())
+                ?.subscribeOn(scheduler)
                 ?: Completable.error(IllegalStateException("SofaMessageSender is nul while leaveGroup"))
     }
 
@@ -266,19 +268,19 @@ class SofaMessageManager(
     fun loadAllAcceptedConversations(): Single<List<Conversation>> {
         return conversationStore
                 .loadAllAcceptedConversation()
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     fun loadAllUnacceptedConversations(): Single<List<Conversation>> {
         return conversationStore
                 .loadAllUnacceptedConversation()
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     fun loadConversation(threadId: String): Single<Conversation> {
         return conversationStore
                 .loadByThreadId(threadId)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     fun loadConversationAndResetUnreadCounter(threadId: String): Single<Conversation> {
@@ -299,7 +301,7 @@ class SofaMessageManager(
     fun deleteConversation(conversation: Conversation): Completable {
         return conversationStore
                 .deleteByThreadId(conversation.threadId)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     fun deleteMessage(recipient: Recipient, sofaMessage: SofaMessage): Completable {
@@ -326,27 +328,27 @@ class SofaMessageManager(
     fun areUnreadMessages(): Single<Boolean> {
         return Single
                 .fromCallable { conversationStore.areUnreadMessages() }
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     fun getSofaMessageById(id: String): Single<SofaMessage> {
         return conversationStore
                 .getSofaMessageById(id)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     fun isConversationMuted(threadId: String): Single<Boolean> {
         return conversationStore
                 .loadByThreadId(threadId)
                 .map { it.conversationStatus.isMuted }
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     fun muteConversation(threadId: String): Completable {
         return conversationStore
                 .loadByThreadId(threadId)
                 .flatMap { muteConversation(it) }
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
                 .toCompletable()
     }
 
@@ -354,26 +356,26 @@ class SofaMessageManager(
         return conversationStore
                 .loadByThreadId(threadId)
                 .flatMap { unmuteConversation(it) }
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
                 .toCompletable()
     }
 
     fun muteConversation(conversation: Conversation): Single<Conversation> {
         return conversationStore
                 .muteConversation(conversation, true)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     fun unmuteConversation(conversation: Conversation): Single<Conversation> {
         return conversationStore
                 .muteConversation(conversation, false)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     fun acceptConversation(conversation: Conversation): Single<Conversation> {
         return conversationStore
                 .acceptConversation(conversation)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
     }
 
     fun rejectConversation(conversation: Conversation): Single<Conversation> {
