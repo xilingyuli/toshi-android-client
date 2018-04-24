@@ -15,26 +15,11 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.toshi.testSharedPrefs
+package com.toshi.storage
 
-import com.toshi.util.sharedPrefs.UserPrefsInterface
+import com.toshi.util.gcm.GcmTokenInterface
+import rx.Single
 
-class TestUserPrefs : UserPrefsInterface {
-
-    companion object {
-        private const val OLD_USER_ID = "uid"
-        private const val USER_ID = "uid_v2"
-    }
-
-    private val map by lazy { HashMap<String, Any?>() }
-
-    override fun getOldUserId(): String? = map[OLD_USER_ID] as String?
-
-    override fun getUserId(): String? = map[USER_ID] as String?
-
-    override fun setUserId(userId: String) {
-        map[USER_ID] = userId
-    }
-
-    override fun clear() = map.clear()
+class TestGcmToken : GcmTokenInterface {
+    override fun get(): Single<String?> = Single.just("token")
 }

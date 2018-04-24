@@ -23,7 +23,7 @@ import android.content.Context
 import com.toshi.crypto.HDWallet
 import com.toshi.model.local.network.Network
 import com.toshi.model.local.network.Networks
-import com.toshi.testSharedPrefs.TestWalletPrefs
+import com.toshi.storage.TestWalletPrefs
 import org.mockito.Mockito
 
 const val masterSeed = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"

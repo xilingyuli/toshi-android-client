@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.toshi.testSharedPrefs
+package com.toshi.storage
 
 import com.toshi.exception.CurrencyException
 import com.toshi.model.local.network.Network

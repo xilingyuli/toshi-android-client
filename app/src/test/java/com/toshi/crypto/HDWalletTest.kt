@@ -1,7 +1,7 @@
 package com.toshi.crypto
 
 import android.content.Context
-import com.toshi.testSharedPrefs.TestWalletPrefs
+import com.toshi.storage.TestWalletPrefs
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before

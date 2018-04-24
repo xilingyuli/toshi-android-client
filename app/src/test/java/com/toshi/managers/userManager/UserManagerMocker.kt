@@ -23,8 +23,8 @@ import com.toshi.manager.RecipientManager
 import com.toshi.manager.UserManager
 import com.toshi.manager.network.IdService
 import com.toshi.managers.baseApplication.BaseApplicationMocker
-import com.toshi.testSharedPrefs.TestAppPrefs
-import com.toshi.testSharedPrefs.TestUserPrefs
+import com.toshi.storage.TestAppPrefs
+import com.toshi.storage.TestUserPrefs
 import rx.schedulers.Schedulers
 
 class UserManagerMocker {

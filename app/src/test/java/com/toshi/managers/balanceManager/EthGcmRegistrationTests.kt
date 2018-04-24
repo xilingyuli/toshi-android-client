@@ -27,9 +27,9 @@ import com.toshi.model.network.GcmDeregistration
 import com.toshi.model.network.GcmRegistration
 import com.toshi.model.network.ServerTime
 import com.toshi.network
-import com.toshi.testSharedPrefs.TestAppPrefs
-import com.toshi.testSharedPrefs.TestEthGcmPrefs
-import com.toshi.testSharedPrefs.TestGcmToken
+import com.toshi.storage.TestAppPrefs
+import com.toshi.storage.TestEthGcmPrefs
+import com.toshi.storage.TestGcmToken
 import com.toshi.util.gcm.GcmTokenInterface
 import com.toshi.util.sharedPrefs.AppPrefsInterface
 import com.toshi.util.sharedPrefs.EthGcmPrefsInterface

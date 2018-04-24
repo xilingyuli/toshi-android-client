@@ -35,8 +35,8 @@ import com.toshi.managers.recipientManager.RecipientManagerMocker
 import com.toshi.managers.transactionManager.TransactionManagerMocker
 import com.toshi.managers.userManager.UserManagerMocker
 import com.toshi.masterSeed
-import com.toshi.testSharedPrefs.TestAppPrefs
-import com.toshi.testSharedPrefs.TestWalletPrefs
+import com.toshi.storage.TestAppPrefs
+import com.toshi.storage.TestWalletPrefs
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import junit.framework.Assert.fail

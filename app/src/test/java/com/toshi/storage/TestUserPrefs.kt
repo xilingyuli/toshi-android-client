@@ -15,19 +15,25 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.toshi.testSharedPrefs
+package com.toshi.storage
 
-import com.toshi.util.sharedPrefs.EthGcmPrefsInterface
+import com.toshi.util.sharedPrefs.UserPrefsInterface
 
-class TestEthGcmPrefs : EthGcmPrefsInterface {
-    private val map by lazy { HashMap<String, Any?>() }
+class TestUserPrefs : UserPrefsInterface {
 
-    override fun setEthGcmTokenSentToServer(networkId: String, isSentToServer: Boolean) {
-        map[networkId] = isSentToServer
+    companion object {
+        private const val OLD_USER_ID = "uid"
+        private const val USER_ID = "uid_v2"
     }
 
-    override fun isEthGcmTokenSentToServer(networkId: String): Boolean {
-        return map[networkId] as Boolean? ?: false
+    private val map by lazy { HashMap<String, Any?>() }
+
+    override fun getOldUserId(): String? = map[OLD_USER_ID] as String?
+
+    override fun getUserId(): String? = map[USER_ID] as String?
+
+    override fun setUserId(userId: String) {
+        map[USER_ID] = userId
     }
 
     override fun clear() = map.clear()

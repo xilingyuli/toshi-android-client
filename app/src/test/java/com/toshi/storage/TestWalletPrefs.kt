@@ -17,7 +17,7 @@
  *
  */
 
-package com.toshi.testSharedPrefs
+package com.toshi.storage
 
 import com.toshi.util.sharedPrefs.WalletPrefsInterface
 import com.toshi.util.sharedPrefs.WalletPrefsInterface.Companion.MASTER_SEED
