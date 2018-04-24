@@ -283,7 +283,7 @@ class ConversationStore(
     //##############################################################################################
     fun saveGroupAvatar(groupId: String, avatar: Avatar?): Completable {
         return loadByThreadId(groupId)
-                .map { it?.recipient?.group }
+                .map { it?.recipient?.group ?: throw NullPointerException("Conversation is null") }
                 .map { it.setAvatar(avatar) }
                 .flatMapCompletable { saveGroup(it) }
                 .doOnError { handleError(it, "Error while saving group avatar") }
@@ -291,7 +291,7 @@ class ConversationStore(
 
     fun saveGroupTitle(groupId: String, title: String): Completable {
         return loadByThreadId(groupId)
-                .map { it?.recipient?.group }
+                .map { it?.recipient?.group ?: throw NullPointerException("Conversation is null") }
                 .map { it.setTitle(title) }
                 .flatMapCompletable { saveGroup(it) }
                 .doOnError { handleError(it, "Error while saving group title") }
@@ -299,7 +299,7 @@ class ConversationStore(
 
     fun addNewMembersToGroup(groupId: String, newMembers: List<User>): Completable {
         return loadByThreadId(groupId)
-                .map { it?.recipient?.group }
+                .map { it?.recipient?.group ?: throw NullPointerException("Conversation is null") }
                 .map { it.addMembers(newMembers) }
                 .flatMapCompletable { saveGroup(it) }
                 .doOnError { handleError(it, "Error while adding new members to group") }
@@ -307,6 +307,7 @@ class ConversationStore(
 
     fun removeUserFromGroup(groupId: String, user: User): Completable {
         return loadByThreadId(groupId)
+                .map { it ?: throw NullPointerException("Conversation is null") }
                 .flatMap { addUserLeftStatusMessage(it, user) }
                 .map { it.recipient.group }
                 .map { it.removeMember(user) }
@@ -347,8 +348,10 @@ class ConversationStore(
         .doOnError { handleError(it, "Error while loading all conversations") }
     }
 
-    fun loadByThreadId(threadId: String): Single<Conversation?> {
-        return Single.fromCallable { loadWhere(THREAD_ID_FIELD, threadId) }
+    fun loadByThreadId(threadId: String): Single<Conversation> {
+        return Single
+                .fromCallable { loadWhere(THREAD_ID_FIELD, threadId) }
+                .map { it ?: throw NullPointerException("Conversation is null") }
                 .subscribeOn(scheduler)
                 .doOnError { handleError(it, "Error while loading thread by id") }
     }
@@ -375,13 +378,13 @@ class ConversationStore(
         return areUnreadMessages
     }
 
-    fun getSofaMessageById(id: String): Single<SofaMessage?> {
+    fun getSofaMessageById(id: String): Single<SofaMessage> {
         return Single.fromCallable {
             val realm = baseApplication.realm
             val result = realm
                     .where(SofaMessage::class.java)
                     .equalTo("privateKey", id)
-                    .findFirst()
+                    .findFirst() ?: throw NullPointerException("Sofa message is null")
             val sofaMessage = realm.copyFromRealm(result)
             realm.close()
             return@fromCallable sofaMessage
@@ -465,6 +468,7 @@ class ConversationStore(
     fun resetUnreadMessageCounter(threadId: String) {
         Single.fromCallable {
             val storedConversation = loadWhere(THREAD_ID_FIELD, threadId)
+                    ?: throw NullPointerException("Conversation is null")
             val realm = baseApplication.realm
             realm.beginTransaction()
             storedConversation.resetUnreadCounter()
