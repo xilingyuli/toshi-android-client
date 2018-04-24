@@ -47,8 +47,8 @@ import rx.schedulers.Schedulers
 
 class SofaMessageManager(
         private val conversationStore: ConversationStore,
-        private val baseApplication: BaseApplication,
         private val userManager: UserManager,
+        private val baseApplication: BaseApplication = BaseApplication.get(),
         private val protocolStore: ProtocolStore = ProtocolStore().init(),
         private val trustStore: SignalTrustStore = SignalTrustStore(),
         private val signalServiceUrl: SignalServiceUrl = SignalServiceUrl(baseApplication.getString(R.string.chat_url), trustStore),

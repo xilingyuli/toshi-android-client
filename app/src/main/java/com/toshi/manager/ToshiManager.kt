@@ -44,7 +44,7 @@ class ToshiManager(
         val transactionManager: TransactionManager = TransactionManager(),
         val recipientManager: RecipientManager = RecipientManager(),
         val userManager: UserManager = UserManager(recipientManager = recipientManager),
-        val chatManager: ChatManager = ChatManager(userManager = userManager),
+        val chatManager: ChatManager = ChatManager(userManager = userManager, recipientManager = recipientManager),
         val reputationManager: ReputationManager = ReputationManager(),
         val dappManager: DappManager = DappManager(),
         private val baseApplication: BaseApplication = BaseApplication.get(),

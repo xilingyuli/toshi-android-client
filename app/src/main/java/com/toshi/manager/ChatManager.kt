@@ -28,7 +28,6 @@ import com.toshi.model.local.IncomingMessage
 import com.toshi.model.local.Recipient
 import com.toshi.model.local.User
 import com.toshi.model.sofa.SofaMessage
-import com.toshi.view.BaseApplication
 import rx.Completable
 import rx.Observable
 import rx.Scheduler
@@ -37,9 +36,9 @@ import rx.schedulers.Schedulers
 
 class ChatManager(
         private val userManager: UserManager,
+        private val recipientManager: RecipientManager,
         private val conversationStore: ConversationStore = ConversationStore(),
-        private val baseApplication: BaseApplication = BaseApplication.get(),
-        private val sofaMessageManager: SofaMessageManager = SofaMessageManager(conversationStore, baseApplication, userManager),
+        private val sofaMessageManager: SofaMessageManager = SofaMessageManager(conversationStore = conversationStore, userManager = userManager),
         private val scheduler: Scheduler = Schedulers.io()
 ) {
 
@@ -71,8 +70,7 @@ class ChatManager(
 
     private fun createEmptyConversationIfNullAndSetToAccepted(conversation: Conversation?, threadId: String): Single<Conversation> {
         return if (conversation != null) Single.just(conversation)
-        else baseApplication
-                .recipientManager
+        else recipientManager
                 .getUserFromToshiId(threadId)
                 .map { Recipient(it) }
                 .flatMap { conversationStore.createEmptyConversation(it) }
@@ -159,12 +157,10 @@ class ChatManager(
     }
 
     fun rejectConversation(conversation: Conversation): Single<Conversation> {
-        return if (conversation.isGroup) {
-            sofaMessageManager
-                    .leaveGroup(conversation.recipient.group)
-                    .toSingle { conversation }
-        } else baseApplication
-                .recipientManager
+        return if (conversation.isGroup) sofaMessageManager
+                .leaveGroup(conversation.recipient.group)
+                .toSingle { conversation }
+        else recipientManager
                 .blockUser(conversation.threadId)
                 .andThen(deleteConversation(conversation))
                 .toSingle { conversation }
