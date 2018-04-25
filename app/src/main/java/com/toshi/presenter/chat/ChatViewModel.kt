@@ -196,7 +196,8 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
 
     fun loadConversation() {
         val sub = getRecipient()
-                .flatMap { chatManager.loadConversationAndResetUnreadCounter(threadId) }
+                .flatMap { chatManager.loadConversationOrCreateNew(it.threadId) }
+                .doOnSuccess { chatManager.resetUnreadCounter(it.threadId) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { handleConversation(it) },

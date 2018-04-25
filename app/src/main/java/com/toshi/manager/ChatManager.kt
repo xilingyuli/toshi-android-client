@@ -17,7 +17,6 @@
 
 package com.toshi.manager
 
-
 import com.toshi.crypto.HDWallet
 import com.toshi.manager.chat.SofaMessageManager
 import com.toshi.manager.store.ConversationStore
@@ -63,16 +62,20 @@ class ChatManager(
                 .subscribeOn(scheduler)
     }
 
+    fun loadConversationOrCreateNew(threadId: String): Single<Conversation> {
+        return loadConversation(threadId)
+                .onErrorReturn { null }
+                .flatMap { createEmptyConversationIfNullAndSetToAccepted(it, threadId) }
+    }
+
     fun loadConversation(threadId: String): Single<Conversation> {
         return conversationStore
                 .loadByThreadId(threadId)
                 .subscribeOn(scheduler)
     }
 
-    fun loadConversationAndResetUnreadCounter(threadId: String): Single<Conversation> {
-        return loadConversation(threadId)
-                .flatMap { createEmptyConversationIfNullAndSetToAccepted(it, threadId) }
-                .doOnSuccess { conversationStore.resetUnreadMessageCounter(it.threadId) }
+    fun resetUnreadCounter(threadId: String) {
+        return conversationStore.resetUnreadMessageCounter(threadId)
     }
 
     private fun createEmptyConversationIfNullAndSetToAccepted(conversation: Conversation?, threadId: String): Single<Conversation> {
