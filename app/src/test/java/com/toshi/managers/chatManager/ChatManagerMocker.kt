@@ -17,3 +17,27 @@
 
 package com.toshi.managers.chatManager
 
+import com.toshi.manager.ChatManager
+import com.toshi.manager.store.conversationStore.ConversationStore
+import com.toshi.managers.baseApplication.BaseApplicationMocker
+import com.toshi.managers.recipientManager.RecipientManagerMocker
+import com.toshi.managers.userManager.UserManagerMocker
+import com.toshi.storage.TestToshiDB
+import rx.schedulers.Schedulers
+
+class ChatManagerMocker {
+    fun mock(toshiId: String): ChatManager {
+        val recipientManager = RecipientManagerMocker().mock(toshiId)
+        val userManager = UserManagerMocker().mock(recipientManager = recipientManager, toshiId = toshiId)
+        val baseApplication = BaseApplicationMocker().mock()
+        val conversationStore = ConversationStore(TestToshiDB())
+
+        return ChatManager(
+                recipientManager = recipientManager,
+                userManager = userManager,
+                conversationStore = conversationStore,
+                baseApplication = baseApplication,
+                scheduler = Schedulers.trampoline()
+        )
+    }
+}

@@ -29,11 +29,12 @@ import rx.schedulers.Schedulers
 
 class UserManagerMocker {
     fun mock(
+            toshiId: String = "0x0",
             recipientManager: RecipientManager,
             userPrefs: TestUserPrefs = TestUserPrefs()
     ): UserManager {
         return UserManager(
-                idService = mockIdApi(),
+                idService = mockIdApi(toshiId),
                 userPrefs = userPrefs,
                 appPrefs = TestAppPrefs(),
                 baseApplication = mockBaseApplication(),
@@ -44,7 +45,7 @@ class UserManagerMocker {
 
     private fun mockBaseApplication() = BaseApplicationMocker().mock()
 
-    private fun mockIdApi(): IdService {
-        return IdServiceMocker().mock()
+    private fun mockIdApi(toshiId: String): IdService {
+        return IdServiceMocker().mock(toshiId)
     }
 }

@@ -29,14 +29,16 @@ import rx.Single
 import java.io.File
 
 class IdServiceMocker {
-    fun mock(): IdService {
+    fun mock(toshiId: String = "0x0"): IdService {
         val idApi = Mockito.mock(IdInterface::class.java)
         val context = mockContext()
         val idService = IdService(idApi, context)
         Mockito.`when`(idApi.timestamp)
                 .thenReturn(Single.just(ServerTime(1L)))
         Mockito.`when`(idApi.registerUser(any(UserDetails::class.java), any(Long::class.java)))
-                .thenReturn(Single.just(User("0x0")))
+                .thenReturn(Single.just(User(toshiId)))
+        Mockito.`when`(idApi.getUser(any(String::class.java)))
+                .thenReturn(Single.just(User(toshiId)))
         return idService
     }
 

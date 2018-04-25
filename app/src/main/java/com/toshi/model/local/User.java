@@ -56,6 +56,7 @@ public class User extends RealmObject {
 
     public User(final String toshiId) {
         this.owner_address = toshiId;
+        this.cacheTimestamp = System.currentTimeMillis();
     }
 
     // Getters

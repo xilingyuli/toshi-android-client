@@ -92,7 +92,7 @@ class ToshiManagerTests {
     }
 
     private fun mockUserManager(recipientManager: RecipientManager): UserManager {
-        return UserManagerMocker().mock(recipientManager)
+        return UserManagerMocker().mock(recipientManager = recipientManager)
     }
 
     private fun mockRecipientManager() = RecipientManagerMocker().mock()

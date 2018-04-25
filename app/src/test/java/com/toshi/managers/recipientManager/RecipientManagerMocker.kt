@@ -30,32 +30,35 @@ import com.toshi.model.local.User
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import rx.Completable
+import rx.Single
 import rx.schedulers.Schedulers
 
 class RecipientManagerMocker {
-    fun mock(): RecipientManager {
+    fun mock(toshiId: String = "0x0"): RecipientManager {
         return RecipientManager(
-                idService = mockIdService(),
+                idService = mockIdService(toshiId),
                 groupStore = mockGroupStore(),
-                userStore = mockUserStore(),
+                userStore = mockUserStore(toshiId),
                 blockedUserStore = mockBlockedUserStore(),
                 baseApplication = mockBaseApplication(),
                 scheduler = Schedulers.trampoline()
         )
     }
 
-    private fun mockIdService(): IdService {
-        return IdServiceMocker().mock()
+    private fun mockIdService(toshiId: String): IdService {
+        return IdServiceMocker().mock(toshiId)
     }
 
     private fun mockGroupStore(): GroupStore {
         return Mockito.mock(GroupStore::class.java)
     }
 
-    private fun mockUserStore(): UserStore {
+    private fun mockUserStore(toshiId: String): UserStore {
         val userStore = Mockito.mock(UserStore::class.java)
         Mockito.`when`(userStore.save(any(User::class.java)))
                 .thenReturn(Completable.complete())
+        Mockito.`when`(userStore.loadForToshiId(any(String::class.java)))
+                .thenReturn(Single.just(User(toshiId)))
         return userStore
     }
 
