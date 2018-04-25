@@ -28,6 +28,8 @@ import com.toshi.model.local.IncomingMessage
 import com.toshi.model.local.Recipient
 import com.toshi.model.local.User
 import com.toshi.model.sofa.SofaMessage
+import com.toshi.util.sharedPrefs.SignalPrefs
+import com.toshi.util.sharedPrefs.SignalPrefsInterface
 import com.toshi.view.BaseApplication
 import rx.Completable
 import rx.Observable
@@ -40,10 +42,12 @@ class ChatManager(
         private val recipientManager: RecipientManager,
         private val conversationStore: ConversationStore = ConversationStore(ToshiDB()),
         private val baseApplication: BaseApplication = BaseApplication.get(),
+        private val signalPrefs: SignalPrefsInterface = SignalPrefs,
         private val sofaMessageManager: SofaMessageManager = SofaMessageManager(
                 conversationStore = conversationStore,
                 userManager = userManager,
-                baseApplication = baseApplication
+                baseApplication = baseApplication,
+                signalPrefs = signalPrefs
         ),
         private val scheduler: Scheduler = Schedulers.io()
 ) {

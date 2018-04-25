@@ -76,10 +76,15 @@ public final class ChatService extends SignalServiceAccountManager {
                         final String user,
                         final String password,
                         final String userAgent) {
-        super(new SignalServiceConfiguration(urls, new SignalCdnUrl[0]),
+        super(
+                new SignalServiceConfiguration(
+                        urls,
+                        new SignalCdnUrl[0]
+                ),
                 user,
                 password,
-                userAgent);
+                userAgent
+        );
         this.url = urls[0].getUrl();
         this.client = new OkHttpClient.Builder();
         this.chatInterface = generateSignalInterface();

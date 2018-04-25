@@ -23,8 +23,8 @@ import android.support.annotation.NonNull;
 
 import com.toshi.crypto.util.ByteUtil;
 import com.toshi.util.logging.LogUtil;
-import com.toshi.view.BaseApplication;
 
+import org.jetbrains.annotations.NotNull;
 import org.whispersystems.libsignal.InvalidKeyIdException;
 import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.state.PreKeyRecord;
@@ -54,8 +54,8 @@ public class SignalPreKeyStore implements PreKeyStore, SignedPreKeyStore {
     @NonNull
     private final Context context;
 
-    public SignalPreKeyStore() {
-        this.context = BaseApplication.get();
+    public SignalPreKeyStore(@NotNull final Context context) {
+        this.context = context;
     }
 
     @Override

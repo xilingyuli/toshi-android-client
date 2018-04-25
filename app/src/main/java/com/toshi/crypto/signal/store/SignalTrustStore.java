@@ -18,17 +18,25 @@
 package com.toshi.crypto.signal.store;
 
 
+import android.content.Context;
+
 import com.toshi.R;
-import com.toshi.view.BaseApplication;
 
 import org.whispersystems.signalservice.api.push.TrustStore;
 
 import java.io.InputStream;
 
 public class SignalTrustStore implements TrustStore {
+
+    private Context context;
+
+    public SignalTrustStore(final Context context) {
+        this.context = context;
+    }
+
     @Override
     public InputStream getKeyStoreInputStream() {
-        return BaseApplication.get().getResources().openRawResource(R.raw.chatkey);
+        return context.getResources().openRawResource(R.raw.chatkey);
     }
 
     @Override

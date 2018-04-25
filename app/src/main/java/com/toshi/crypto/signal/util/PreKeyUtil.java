@@ -85,7 +85,7 @@ public class PreKeyUtil {
     private static final int BATCH_SIZE = 100;
 
     public static List<PreKeyRecord> generatePreKeys(Context context) {
-        PreKeyStore preKeyStore    = new SignalPreKeyStore();
+        PreKeyStore preKeyStore    = new SignalPreKeyStore(context);
         List<PreKeyRecord> records        = new LinkedList<>();
         int                preKeyIdOffset = getNextPreKeyId(context);
 
@@ -105,7 +105,7 @@ public class PreKeyUtil {
     public static SignedPreKeyRecord generateSignedPreKey(Context context, IdentityKeyPair identityKeyPair, boolean active)
     {
         try {
-            SignedPreKeyStore signedPreKeyStore = new SignalPreKeyStore();
+            SignedPreKeyStore signedPreKeyStore = new SignalPreKeyStore(context);
             int                signedPreKeyId    = getNextSignedPreKeyId(context);
             ECKeyPair keyPair           = Curve.generateKeyPair();
             byte[]             signature         = Curve.calculateSignature(identityKeyPair.getPrivateKey(), keyPair.getPublicKey().serialize());
@@ -126,7 +126,7 @@ public class PreKeyUtil {
     }
 
     public static PreKeyRecord generateLastResortKey(Context context) {
-        PreKeyStore preKeyStore = new SignalPreKeyStore();
+        PreKeyStore preKeyStore = new SignalPreKeyStore(context);
 
         if (preKeyStore.containsPreKey(Medium.MAX_VALUE)) {
             try {

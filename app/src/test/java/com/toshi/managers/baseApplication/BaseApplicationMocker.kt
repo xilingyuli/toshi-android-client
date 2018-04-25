@@ -17,9 +17,12 @@
 
 package com.toshi.managers.baseApplication
 
+import android.content.res.Resources
 import com.toshi.view.BaseApplication
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import rx.subjects.BehaviorSubject
+import java.io.InputStream
 
 class BaseApplicationMocker {
     fun mock(): BaseApplication {
@@ -28,6 +31,16 @@ class BaseApplicationMocker {
         subject.onNext(true)
         Mockito.`when`(baseApplication.isConnectedSubject)
                 .thenReturn(subject)
+
+        val resources = Mockito.mock(Resources::class.java)
+        Mockito.`when`(resources.openRawResource(any(Int::class.java)))
+                .thenReturn(object : InputStream() {
+                    override fun read(): Int = 1
+                })
+
+        Mockito.`when`(baseApplication.resources)
+                .thenReturn(resources)
+
         return baseApplication
     }
 }

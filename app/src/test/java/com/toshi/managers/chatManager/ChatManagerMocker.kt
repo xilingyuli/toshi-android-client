@@ -22,6 +22,7 @@ import com.toshi.manager.store.ConversationStore
 import com.toshi.managers.baseApplication.BaseApplicationMocker
 import com.toshi.managers.recipientManager.RecipientManagerMocker
 import com.toshi.managers.userManager.UserManagerMocker
+import com.toshi.storage.TestSignalPrefs
 import com.toshi.storage.TestToshiDB
 import rx.schedulers.Schedulers
 
@@ -35,6 +36,7 @@ class ChatManagerMocker {
         return ChatManager(
                 recipientManager = recipientManager,
                 userManager = userManager,
+                signalPrefs = TestSignalPrefs(),
                 conversationStore = conversationStore,
                 baseApplication = baseApplication,
                 scheduler = Schedulers.trampoline()

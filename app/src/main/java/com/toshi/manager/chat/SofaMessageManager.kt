@@ -36,7 +36,7 @@ import com.toshi.model.sofa.SofaAdapters
 import com.toshi.model.sofa.SofaMessage
 import com.toshi.util.LocaleUtil
 import com.toshi.util.logging.LogUtil
-import com.toshi.util.sharedPrefs.SignalPrefs
+import com.toshi.util.sharedPrefs.SignalPrefsInterface
 import com.toshi.view.BaseApplication
 import org.whispersystems.signalservice.internal.configuration.SignalServiceUrl
 import rx.Completable
@@ -49,11 +49,11 @@ class SofaMessageManager(
         private val conversationStore: ConversationStore,
         private val userManager: UserManager,
         private val baseApplication: BaseApplication = BaseApplication.get(),
-        private val protocolStore: ProtocolStore = ProtocolStore().init(),
-        private val trustStore: SignalTrustStore = SignalTrustStore(),
+        private val signalPrefs: SignalPrefsInterface,
+        private val protocolStore: ProtocolStore = ProtocolStore(baseApplication, signalPrefs),
+        private val trustStore: SignalTrustStore = SignalTrustStore(baseApplication),
         private val signalServiceUrl: SignalServiceUrl = SignalServiceUrl(baseApplication.getString(R.string.chat_url), trustStore),
         private val signalServiceUrls: Array<SignalServiceUrl> = Array(1, { signalServiceUrl }),
-        private val signalPrefs: SignalPrefs = SignalPrefs,
         private val userAgent: String = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME + ":" + BuildConfig.VERSION_CODE,
         private val scheduler: Scheduler = Schedulers.io()
 ) {
