@@ -18,7 +18,7 @@
 package com.toshi.managers.chatManager
 
 import com.toshi.manager.ChatManager
-import com.toshi.manager.store.conversationStore.ConversationStore
+import com.toshi.manager.store.ConversationStore
 import com.toshi.managers.baseApplication.BaseApplicationMocker
 import com.toshi.managers.recipientManager.RecipientManagerMocker
 import com.toshi.managers.userManager.UserManagerMocker
