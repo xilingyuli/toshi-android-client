@@ -28,7 +28,6 @@ import com.toshi.model.local.User
 import com.toshi.model.sofa.SofaMessage
 import com.toshi.util.logging.LogUtil
 import com.toshi.util.statusMessage.StatusMessageBuilder
-import com.toshi.view.BaseApplication
 import io.realm.Sort
 import org.whispersystems.signalservice.api.messages.SignalServiceGroup
 import rx.Completable
@@ -40,8 +39,8 @@ import rx.subjects.PublishSubject
 import java.util.concurrent.Executors
 
 class ConversationStore(
-        private val scheduler: Scheduler = Schedulers.from(Executors.newSingleThreadExecutor()),
-        private val baseApplication: BaseApplication = BaseApplication.get()
+        private val db: ToshiDBInterface,
+        private val scheduler: Scheduler = Schedulers.from(Executors.newSingleThreadExecutor())
 ) {
 
     companion object {
@@ -104,14 +103,14 @@ class ConversationStore(
 
     fun createEmptyConversation(recipient: Recipient): Single<Conversation> {
         return Single.fromCallable {
-            val realm = baseApplication.realm
-            realm.beginTransaction()
+            db.open()
+            db.beginTransaction()
             val conversation = Conversation(recipient)
             conversation.conversationStatus.isAccepted = true
-            realm.copyToRealmOrUpdate(conversation)
-            realm.commitTransaction()
-            realm.close()
-            conversation
+            db.copyToRealmOrUpdate(conversation)
+            db.commitTransaction()
+            db.close()
+            return@fromCallable conversation
         }
         .subscribeOn(scheduler)
         .doOnError { handleError(it, "Error while creating empty conversation") }
@@ -120,13 +119,13 @@ class ConversationStore(
     private fun copyOrUpdateGroup(group: Group): Single<Conversation> {
         return Single.fromCallable {
             val conversationToStore = getOrCreateConversation(group)
-            val realm = baseApplication.realm
-            realm.beginTransaction()
+            db.open()
+            db.beginTransaction()
             conversationToStore.updateRecipient(Recipient(group))
-            val storedConversation = realm.copyToRealmOrUpdate(conversationToStore)
-            realm.commitTransaction()
-            val conversationForBroadcast = realm.copyFromRealm(storedConversation)
-            realm.close()
+            val storedConversation = db.copyToRealmOrUpdate(conversationToStore)
+            db.commitTransaction()
+            val conversationForBroadcast = db.copyFromRealm(storedConversation)
+            db.close()
             return@fromCallable conversationForBroadcast
         }
         .subscribeOn(scheduler)
@@ -173,21 +172,21 @@ class ConversationStore(
                 broadcastNewChatMessage(receiver.threadId, timestampMessage)
             }
 
-            val realm = baseApplication.realm
-            realm.beginTransaction()
+            db.open()
+            db.beginTransaction()
 
             if (message != null) {
-                val storedMessage = realm.copyToRealmOrUpdate(message)
+                val storedMessage = db.copyToRealmOrUpdate(message)
                 val updateUnreadCounter = conversationToStore.threadId != watchedThreadId && !storedMessage.isLocalStatusMessage()
                 if (updateUnreadCounter) conversationToStore.setLatestMessageAndUpdateUnreadCounter(storedMessage)
                 else conversationToStore.setLatestMessage(storedMessage)
                 broadcastNewChatMessage(receiver.threadId, message)
             }
 
-            val storedConversation = realm.copyToRealmOrUpdate(conversationToStore)
-            realm.commitTransaction()
-            val conversationForBroadcast = realm.copyFromRealm(storedConversation)
-            realm.close()
+            val storedConversation = db.copyToRealmOrUpdate(conversationToStore)
+            db.commitTransaction()
+            val conversationForBroadcast = db.copyFromRealm(storedConversation)
+            db.close()
 
             return@fromCallable conversationForBroadcast
         }
@@ -197,11 +196,11 @@ class ConversationStore(
 
     fun updateMessage(receiver: Recipient, message: SofaMessage) {
         Completable.fromAction {
-            val realm = baseApplication.realm
-            realm.beginTransaction()
-            realm.insertOrUpdate(message)
-            realm.commitTransaction()
-            realm.close()
+            db.open()
+            db.beginTransaction()
+            db.insertOrUpdate(message)
+            db.commitTransaction()
+            db.close()
         }
         .observeOn(Schedulers.immediate())
         .subscribeOn(scheduler)
@@ -213,22 +212,19 @@ class ConversationStore(
 
     private fun updateLatestMessage(threadId: String): Completable {
         return Completable.fromAction {
-            val realm = baseApplication.realm
-            val conversation = realm
-                    .where(Conversation::class.java)
-                    .equalTo(THREAD_ID_FIELD, threadId)
-                    .findFirst()
+            db.open()
+            val conversation = db.findFirstEqualTo(Conversation::class.java, THREAD_ID_FIELD, threadId)
             if (conversation == null) {
-                realm.close()
+                db.close()
                 return@fromAction
             }
             if (conversation.allMessages != null && conversation.allMessages.size > 0) {
                 val lastMessage = conversation.allMessages[conversation.allMessages.size - 1]
-                realm.beginTransaction()
+                db.beginTransaction()
                 conversation.updateLatestMessage(lastMessage)
-                realm.commitTransaction()
+                db.commitTransaction()
             }
-            realm.close()
+            db.close()
         }
         .subscribeOn(scheduler)
         .doOnError { handleError(it, "Error while updating latest message") }
@@ -333,15 +329,17 @@ class ConversationStore(
 
     private fun loadAllConversations(isAccepted: Boolean): Single<List<Conversation>> {
         return Single.fromCallable {
-            val realm = baseApplication.realm
-            val query = realm.where(Conversation::class.java)
-                    .equalTo("conversationStatus.isAccepted", isAccepted)
-                    .isNotEmpty("allMessages")
-            val results = query
-                    .sort("updatedTime", Sort.DESCENDING)
-                    .findAll()
-            val allConversations = realm.copyFromRealm(results)
-            realm.close()
+            db.open()
+            val results = db.findAllNotEmptyEqualTo(
+                    clazz = Conversation::class.java,
+                    fieldName = "conversationStatus.isAccepted",
+                    value = isAccepted,
+                    isNotEmptyField = "allMessages",
+                    sortAfterField = "updatedTime",
+                    sortOrder = Sort.DESCENDING
+            )
+            val allConversations = db.copyFromRealm(results)
+            db.close()
             return@fromCallable allConversations
         }
         .subscribeOn(scheduler)
@@ -357,36 +355,32 @@ class ConversationStore(
     }
 
     private fun loadWhere(fieldName: String, value: String): Conversation? {
-        val realm = baseApplication.realm
-        val result = realm
-                .where(Conversation::class.java)
-                .equalTo(fieldName, value)
-                .findFirst()
-        val queriedConversation = if (result == null) null else realm.copyFromRealm(result)
-        realm.close()
+        db.open()
+        val result = db.findFirstEqualTo(Conversation::class.java, fieldName, value)
+        val queriedConversation = if (result == null) null else db.copyFromRealm(result)
+        db.close()
         return queriedConversation
     }
 
     fun areUnreadMessages(): Boolean {
-        val realm = baseApplication.realm
-        val result = realm
-                .where(Conversation::class.java)
-                .greaterThan("numberOfUnread", 0)
-                .findFirst()
+        db.open()
+        val result = db.findFirstGreaterThan(
+                clazz = Conversation::class.java,
+                greaterThanFieldName = "numberOfUnread",
+                value = 0
+        )
         val areUnreadMessages = result != null
-        realm.close()
+        db.close()
         return areUnreadMessages
     }
 
     fun getSofaMessageById(id: String): Single<SofaMessage> {
         return Single.fromCallable {
-            val realm = baseApplication.realm
-            val result = realm
-                    .where(SofaMessage::class.java)
-                    .equalTo("privateKey", id)
-                    .findFirst() ?: throw NullPointerException("Sofa message is null")
-            val sofaMessage = realm.copyFromRealm(result)
-            realm.close()
+            db.open()
+            val result = db.findFirstEqualTo(SofaMessage::class.java, "privateKey", id)
+                    ?: throw NullPointerException("Sofa message is null")
+            val sofaMessage = db.copyFromRealm(result)
+            db.close()
             return@fromCallable sofaMessage
         }
         .subscribeOn(scheduler)
@@ -400,15 +394,12 @@ class ConversationStore(
 
     fun deleteByThreadId(threadId: String): Completable {
         return Completable.fromAction {
-            val realm = baseApplication.realm
-            realm.beginTransaction()
-            val conversationToDelete = realm
-                    .where(Conversation::class.java)
-                    .equalTo(THREAD_ID_FIELD, threadId)
-                    .findFirst()
+            db.open()
+            db.beginTransaction()
+            val conversationToDelete = db.findFirstEqualTo(Conversation::class.java, THREAD_ID_FIELD, threadId)
             conversationToDelete?.cascadeDelete()
-            realm.commitTransaction()
-            realm.close()
+            db.commitTransaction()
+            db.close()
         }
         .subscribeOn(scheduler)
         .doOnError { handleError(it, "Error while deleting thread by id") }
@@ -416,15 +407,11 @@ class ConversationStore(
 
     fun deleteMessageById(receiver: Recipient, message: SofaMessage): Completable {
         return Completable.fromAction {
-            val realm = baseApplication.realm
-            realm.beginTransaction()
-            realm
-                    .where(SofaMessage::class.java)
-                    .equalTo(MESSAGE_ID_FIELD, message.privateKey)
-                    .findFirst()
-                    ?.deleteFromRealm()
-            realm.commitTransaction()
-            realm.close()
+            db.open()
+            db.beginTransaction()
+            db.deleteFirstEqualTo(SofaMessage::class.java, MESSAGE_ID_FIELD, message.privateKey)
+            db.commitTransaction()
+            db.close()
         }
         .observeOn(Schedulers.immediate())
         .subscribeOn(scheduler)
@@ -439,12 +426,12 @@ class ConversationStore(
 
     fun muteConversation(conversation: Conversation, mute: Boolean): Single<Conversation> {
         return Single.fromCallable {
-            val realm = baseApplication.realm
-            realm.beginTransaction()
+            db.open()
+            db.beginTransaction()
             conversation.conversationStatus.isMuted = mute
-            realm.copyToRealmOrUpdate(conversation)
-            realm.commitTransaction()
-            realm.close()
+            db.copyToRealmOrUpdate(conversation)
+            db.commitTransaction()
+            db.close()
             return@fromCallable conversation
         }
         .subscribeOn(scheduler)
@@ -453,12 +440,12 @@ class ConversationStore(
 
     fun acceptConversation(conversation: Conversation): Single<Conversation> {
         return Single.fromCallable {
-            val realm = baseApplication.realm
-            realm.beginTransaction()
+            db.open()
+            db.beginTransaction()
             conversation.conversationStatus.isAccepted = true
-            realm.copyToRealmOrUpdate(conversation)
-            realm.commitTransaction()
-            realm.close()
+            db.copyToRealmOrUpdate(conversation)
+            db.commitTransaction()
+            db.close()
             return@fromCallable conversation
         }
         .subscribeOn(scheduler)
@@ -469,12 +456,12 @@ class ConversationStore(
         Single.fromCallable {
             val storedConversation = loadWhere(THREAD_ID_FIELD, threadId)
                     ?: throw NullPointerException("Conversation is null")
-            val realm = baseApplication.realm
-            realm.beginTransaction()
+            db.open()
+            db.beginTransaction()
             storedConversation.resetUnreadCounter()
-            realm.insertOrUpdate(storedConversation)
-            realm.commitTransaction()
-            realm.close()
+            db.insertOrUpdate(storedConversation)
+            db.commitTransaction()
+            db.close()
             return@fromCallable storedConversation
         }
         .observeOn(Schedulers.immediate())

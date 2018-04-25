@@ -21,6 +21,7 @@ package com.toshi.manager
 import com.toshi.crypto.HDWallet
 import com.toshi.manager.chat.SofaMessageManager
 import com.toshi.manager.store.ConversationStore
+import com.toshi.manager.store.ToshiDB
 import com.toshi.model.local.Conversation
 import com.toshi.model.local.ConversationObservables
 import com.toshi.model.local.Group
@@ -28,6 +29,7 @@ import com.toshi.model.local.IncomingMessage
 import com.toshi.model.local.Recipient
 import com.toshi.model.local.User
 import com.toshi.model.sofa.SofaMessage
+import com.toshi.view.BaseApplication
 import rx.Completable
 import rx.Observable
 import rx.Scheduler
@@ -37,8 +39,13 @@ import rx.schedulers.Schedulers
 class ChatManager(
         private val userManager: UserManager,
         private val recipientManager: RecipientManager,
-        private val conversationStore: ConversationStore = ConversationStore(),
-        private val sofaMessageManager: SofaMessageManager = SofaMessageManager(conversationStore = conversationStore, userManager = userManager),
+        private val conversationStore: ConversationStore = ConversationStore(ToshiDB()),
+        private val baseApplication: BaseApplication = BaseApplication.get(),
+        private val sofaMessageManager: SofaMessageManager = SofaMessageManager(
+                conversationStore = conversationStore,
+                userManager = userManager,
+                baseApplication = baseApplication
+        ),
         private val scheduler: Scheduler = Schedulers.io()
 ) {
 
