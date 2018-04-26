@@ -42,6 +42,7 @@ import com.toshi.view.activity.BackupPhraseInfoActivity
 import com.toshi.view.activity.CurrencyActivity
 import com.toshi.view.activity.SignOutActivity
 import com.toshi.view.activity.ViewProfileActivity
+import com.toshi.view.activity.WalletsActivity
 import com.toshi.view.adapter.MeAdapter
 import com.toshi.view.adapter.listeners.OnItemClickListener
 import com.toshi.viewModel.MeViewModel
@@ -53,6 +54,7 @@ import kotlinx.android.synthetic.main.fragment_me.name
 import kotlinx.android.synthetic.main.fragment_me.securityStatus
 import kotlinx.android.synthetic.main.fragment_me.settings
 import kotlinx.android.synthetic.main.fragment_me.username
+import kotlinx.android.synthetic.main.fragment_me.walletContainer
 import java.math.BigInteger
 
 class MeFragment : TopLevelFragment() {
@@ -100,6 +102,7 @@ class MeFragment : TopLevelFragment() {
     private fun initClickListeners() {
         myProfileCard.setOnClickListener { startActivity<ViewProfileActivity>() }
         backupPhrase.setOnClickListener { startActivity<BackupPhraseInfoActivity>() }
+        walletContainer.setOnClickListener { startActivity<WalletsActivity>() }
     }
 
     private fun initRecyclerView() {
