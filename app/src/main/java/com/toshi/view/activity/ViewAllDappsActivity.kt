@@ -24,17 +24,14 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.toshi.R
-import com.toshi.extensions.addHorizontalLineDivider
-import com.toshi.extensions.getPxSize
-import com.toshi.extensions.startActivity
-import com.toshi.extensions.toArrayList
-import com.toshi.extensions.toast
+import com.toshi.extensions.*
 import com.toshi.model.network.dapp.Dapp
 import com.toshi.view.adapter.AllDappsAdapter
 import com.toshi.viewModel.LoadingState
 import com.toshi.viewModel.PagingState
 import com.toshi.viewModel.ViewAllDappsViewModel
 import com.toshi.viewModel.ViewModelFactory.ViewAllDappsViewModelFactory
+import kotlinx.android.synthetic.main.activity_settings_advanced.*
 import kotlinx.android.synthetic.main.activity_view_dapps.closeButton
 import kotlinx.android.synthetic.main.activity_view_dapps.dapps
 import kotlinx.android.synthetic.main.activity_view_dapps.toolbarTitle
@@ -63,6 +60,7 @@ class ViewAllDappsActivity : AppCompatActivity() {
 
     private fun init() {
         initViewModel()
+        initNetworkView()
         initClickListeners()
         initAdapter()
         initScrollListener()
@@ -74,6 +72,10 @@ class ViewAllDappsActivity : AppCompatActivity() {
                 this,
                 ViewAllDappsViewModelFactory(intent)
         ).get(ViewAllDappsViewModel::class.java)
+    }
+
+    private fun initNetworkView() {
+        networkStatusView.setNetworkVisibility(viewModel.getNetworks())
     }
 
     private fun initClickListeners() {

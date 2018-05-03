@@ -34,19 +34,9 @@ import com.toshi.model.network.dapp.DappResult
 import com.toshi.util.ImageUtil
 import com.toshi.viewModel.ViewDappViewModel
 import com.toshi.viewModel.ViewModelFactory.ViewDappViewModelFactory
-import kotlinx.android.synthetic.main.activity_view_dapp.categories
-import kotlinx.android.synthetic.main.activity_view_dapp.dappAvatar
-import kotlinx.android.synthetic.main.activity_view_dapp.description
-import kotlinx.android.synthetic.main.activity_view_dapp.header
-import kotlinx.android.synthetic.main.activity_view_dapp.name
-import kotlinx.android.synthetic.main.activity_view_dapp.openBtn
-import kotlinx.android.synthetic.main.activity_view_dapp.scrollView
-import kotlinx.android.synthetic.main.activity_view_dapp.url
-import kotlinx.android.synthetic.main.view_dapp_header.toolbarTitle
-import kotlinx.android.synthetic.main.view_dapp_header.view.closeButton
-import kotlinx.android.synthetic.main.view_dapp_header.view.headerImage
-import kotlinx.android.synthetic.main.view_dapp_header.view.toolbar
-import kotlinx.android.synthetic.main.view_dapp_header.view.toolbarTitle
+import kotlinx.android.synthetic.main.activity_view_dapp.*
+import kotlinx.android.synthetic.main.view_dapp_header.*
+import kotlinx.android.synthetic.main.view_dapp_header.view.*
 
 class ViewDappActivity : AppCompatActivity() {
 
@@ -65,6 +55,7 @@ class ViewDappActivity : AppCompatActivity() {
     private fun init() {
         setStatusBarColor()
         initViewModel()
+        initNetworkView()
         initListeners()
         initObservers()
     }
@@ -78,6 +69,10 @@ class ViewDappActivity : AppCompatActivity() {
                 this,
                 ViewDappViewModelFactory(intent)
         ).get(ViewDappViewModel::class.java)
+    }
+
+    private fun initNetworkView() {
+        networkStatusView.setNetworkVisibility(viewModel.getNetworks())
     }
 
     private fun initListeners() {

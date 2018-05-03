@@ -142,4 +142,11 @@
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
+
+    <com.toshi.view.custom.NetworkStatusView
+        android:id="@+id/networkStatusView"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/network_status_height"
+        android:layout_gravity="bottom"/>
+
 </android.support.design.widget.CoordinatorLayout>

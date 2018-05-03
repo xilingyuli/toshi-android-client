@@ -21,6 +21,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.content.Intent
 import com.toshi.R
+import com.toshi.model.local.network.Networks
 import com.toshi.model.network.dapp.Dapp
 import com.toshi.model.network.dapp.DappSearchResult
 import com.toshi.model.network.dapp.Dapps
@@ -159,6 +160,8 @@ class ViewAllDappsViewModel(private val intent: Intent) : ViewModel() {
     private fun updateCategories(searchResult: DappSearchResult) {
         dappCategories.putAll(searchResult.results.categories)
     }
+
+    fun getNetworks() = Networks.getInstance()
 
     override fun onCleared() {
         super.onCleared()

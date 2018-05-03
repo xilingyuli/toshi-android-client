@@ -22,6 +22,7 @@ import android.arch.lifecycle.ViewModel
 import android.content.Intent
 import com.toshi.R
 import com.toshi.extensions.toMap
+import com.toshi.model.local.network.Networks
 import com.toshi.model.network.dapp.Dapp
 import com.toshi.model.network.dapp.DappResult
 import com.toshi.util.SingleLiveEvent
@@ -65,6 +66,8 @@ class ViewDappViewModel(private val intent: Intent) : ViewModel() {
             emptyMap()
         }
     }
+
+    fun getNetworks() = Networks.getInstance()
 
     override fun onCleared() {
         super.onCleared()

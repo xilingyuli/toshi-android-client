@@ -58,6 +58,12 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/dapps"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <com.toshi.view.custom.NetworkStatusView
+        android:id="@+id/networkStatusView"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/network_status_height" />
 
 </LinearLayout>
