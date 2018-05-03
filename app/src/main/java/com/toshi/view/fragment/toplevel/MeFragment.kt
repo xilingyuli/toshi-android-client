@@ -27,33 +27,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.toshi.R
-import com.toshi.extensions.addHorizontalLineDivider
-import com.toshi.extensions.getColorById
-import com.toshi.extensions.getPxSize
-import com.toshi.extensions.startActivity
-import com.toshi.extensions.startActivityAndFinish
-import com.toshi.extensions.toast
+import com.toshi.extensions.*
 import com.toshi.model.local.User
 import com.toshi.model.network.Balance
 import com.toshi.util.ImageUtil
 import com.toshi.util.sharedPrefs.AppPrefs
-import com.toshi.view.activity.AdvancedSettingsActivity
-import com.toshi.view.activity.BackupPhraseInfoActivity
-import com.toshi.view.activity.CurrencyActivity
-import com.toshi.view.activity.LicenseListActivity
-import com.toshi.view.activity.SignOutActivity
-import com.toshi.view.activity.ViewProfileActivity
+import com.toshi.view.activity.*
 import com.toshi.view.adapter.MeAdapter
 import com.toshi.view.adapter.listeners.OnItemClickListener
 import com.toshi.viewModel.MeViewModel
-import kotlinx.android.synthetic.main.fragment_me.avatar
-import kotlinx.android.synthetic.main.fragment_me.backupPhrase
-import kotlinx.android.synthetic.main.fragment_me.checkboxBackupPhrase
-import kotlinx.android.synthetic.main.fragment_me.myProfileCard
-import kotlinx.android.synthetic.main.fragment_me.name
-import kotlinx.android.synthetic.main.fragment_me.securityStatus
-import kotlinx.android.synthetic.main.fragment_me.settings
-import kotlinx.android.synthetic.main.fragment_me.username
+import kotlinx.android.synthetic.main.fragment_me.*
 import java.math.BigInteger
 
 class MeFragment : TopLevelFragment() {
@@ -195,4 +178,6 @@ class MeFragment : TopLevelFragment() {
     }
 
     private fun updateMeAdapter() = meAdapter.notifyDataSetChanged()
+
+    override fun renderNetworkStatusView(): Boolean = true
 }

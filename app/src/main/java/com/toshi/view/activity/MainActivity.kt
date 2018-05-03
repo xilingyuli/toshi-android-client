@@ -10,6 +10,7 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigation
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.toshi.R
 import com.toshi.extensions.getColorById
+import com.toshi.extensions.isVisible
 import com.toshi.util.SoundManager
 import com.toshi.util.sharedPrefs.AppPrefs
 import com.toshi.view.adapter.NavigationAdapter
@@ -17,8 +18,7 @@ import com.toshi.view.fragment.toplevel.BackableTopLevelFragment
 import com.toshi.view.fragment.toplevel.DappFragment
 import com.toshi.view.fragment.toplevel.TopLevelFragment
 import com.toshi.viewModel.MainViewModel
-import kotlinx.android.synthetic.main.activity_main.fragmentContainer
-import kotlinx.android.synthetic.main.activity_main.navBar
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun init(inState: Bundle?) {
         initViewModel()
+        initNetworkView()
         initNavAdapter()
         initNavBar()
         trySelectTabFromIntent(inState)
@@ -51,6 +52,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun initViewModel() {
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+    }
+
+    private fun initNetworkView() {
+        networkStatusView.setNetworkVisibility(viewModel.getNetworks())
     }
 
     private fun initNavAdapter() {
@@ -81,6 +86,15 @@ class MainActivity : AppCompatActivity() {
                 selectedFragment as Fragment,
                 selectedFragment.getFragmentTag()
         ).commit()
+        updateNetworkView(selectedFragment)
+    }
+
+    private fun updateNetworkView(selectedFragment: TopLevelFragment) {
+        if (selectedFragment.renderNetworkStatusView()) {
+            networkStatusView.setNetworkVisibility(viewModel.getNetworks())
+        } else {
+            networkStatusView.isVisible(false)
+        }
     }
 
     private fun initNavBar() {

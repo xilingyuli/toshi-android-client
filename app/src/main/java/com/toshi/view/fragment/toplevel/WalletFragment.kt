@@ -31,15 +31,10 @@ import com.toshi.R
 import com.toshi.extensions.getColorById
 import com.toshi.extensions.toast
 import com.toshi.view.adapter.WalletPagerAdapter
-import com.toshi.view.fragment.dialogFragment.ShareWalletAddressDialog
 import com.toshi.view.fragment.RefreshFragment
+import com.toshi.view.fragment.dialogFragment.ShareWalletAddressDialog
 import com.toshi.viewModel.WalletViewModel
-import kotlinx.android.synthetic.main.fragment_wallet.copy
-import kotlinx.android.synthetic.main.fragment_wallet.refreshLayout
-import kotlinx.android.synthetic.main.fragment_wallet.tabLayout
-import kotlinx.android.synthetic.main.fragment_wallet.viewPager
-import kotlinx.android.synthetic.main.fragment_wallet.walletAddress
-import kotlinx.android.synthetic.main.fragment_wallet.walletWrapper
+import kotlinx.android.synthetic.main.fragment_wallet.*
 
 class WalletFragment : TopLevelFragment() {
     companion object {
@@ -126,4 +121,6 @@ class WalletFragment : TopLevelFragment() {
     fun stopRefreshing() {
         refreshLayout.isRefreshing = false
     }
+
+    override fun renderNetworkStatusView(): Boolean = true
 }

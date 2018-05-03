@@ -39,16 +39,11 @@ import com.toshi.view.activity.ChatActivity
 import com.toshi.view.activity.ConversationRequestActivity
 import com.toshi.view.activity.ConversationSetupActivity
 import com.toshi.view.activity.PopularUserSearchActivity
-import com.toshi.view.adapter.CompoundAdapter
-import com.toshi.view.adapter.ConversationAdapter
-import com.toshi.view.adapter.ConversationRequestsAdapter
-import com.toshi.view.adapter.InviteFriendAdapter
-import com.toshi.view.adapter.SearchHeaderAdapter
+import com.toshi.view.adapter.*
 import com.toshi.view.adapter.viewholder.ThreadViewHolder
 import com.toshi.view.fragment.dialogFragment.ConversationOptionsDialogFragment
 import com.toshi.viewModel.RecentViewModel
-import kotlinx.android.synthetic.main.fragment_recent.add
-import kotlinx.android.synthetic.main.fragment_recent.recents
+import kotlinx.android.synthetic.main.fragment_recent.*
 
 class RecentFragment : TopLevelFragment() {
 
@@ -220,4 +215,6 @@ class RecentFragment : TopLevelFragment() {
         super.onStop()
         compoundAdapter.doDelete()
     }
+
+    override fun renderNetworkStatusView(): Boolean = false
 }

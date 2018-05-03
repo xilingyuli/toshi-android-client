@@ -27,13 +27,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.toshi.R
-import com.toshi.extensions.getColorById
-import com.toshi.extensions.isVisible
-import com.toshi.extensions.isWebUrl
-import com.toshi.extensions.openWebViewForResult
-import com.toshi.extensions.startActivity
-import com.toshi.extensions.toArrayList
-import com.toshi.extensions.toast
+import com.toshi.extensions.*
 import com.toshi.model.local.dapp.DappCategory
 import com.toshi.model.network.dapp.Dapp
 import com.toshi.model.network.dapp.DappSections
@@ -48,13 +42,10 @@ import com.toshi.view.activity.webView.LollipopWebViewActivity.Companion.RESULT_
 import com.toshi.view.adapter.DappAdapter
 import com.toshi.view.adapter.SearchDappAdapter
 import com.toshi.viewModel.DappViewModel
-import kotlinx.android.synthetic.main.fragment_dapps.container
-import kotlinx.android.synthetic.main.fragment_dapps.dapps
-import kotlinx.android.synthetic.main.fragment_dapps.header
-import kotlinx.android.synthetic.main.fragment_dapps.searchDapps
-import kotlinx.android.synthetic.main.fragment_dapps.view.header
-import kotlinx.android.synthetic.main.view_collapsing_toshi.input
-import kotlinx.android.synthetic.main.view_collapsing_toshi.view.input
+import kotlinx.android.synthetic.main.fragment_dapps.*
+import kotlinx.android.synthetic.main.fragment_dapps.view.*
+import kotlinx.android.synthetic.main.view_collapsing_toshi.*
+import kotlinx.android.synthetic.main.view_collapsing_toshi.view.*
 
 class DappFragment : BackableTopLevelFragment() {
 
@@ -229,6 +220,8 @@ class DappFragment : BackableTopLevelFragment() {
             expandAndScrollToTop()
         }
     }
+
+    override fun renderNetworkStatusView(): Boolean = true
 
     override fun onBackPressed(): Boolean {
         if (!header.isFullyExpanded) {

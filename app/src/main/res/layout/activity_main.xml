@@ -41,6 +41,11 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </android.support.design.widget.CoordinatorLayout>
 
+    <com.toshi.view.custom.NetworkStatusView
+        android:id="@+id/networkStatusView"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/network_status_height" />
+
     <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
         android:id="@+id/navBar"
         android:layout_width="match_parent"
